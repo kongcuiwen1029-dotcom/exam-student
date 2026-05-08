@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>算法题演示动效</title>
+  <style>
+    :root {
+      --bg: #edf2f7;
+      --panel: #ffffff;
+      --panel-soft: #f7f8fb;
+      --line: #d8dde7;
+      --line-strong: #c7ceda;
+      --text: #1f2a3d;
+      --muted: #6c7a92;
+      --brand: #4f6cff;
+      --brand-soft: rgba(79, 108, 255, 0.12);
+      --success: #2fb16d;
+      --shadow: 0 18px 45px rgba(16, 24, 40, 0.14);
+      --editor: #1f1f22;
+      --editor-line: #2b2d33;
+      --editor-text: #e8edf9;
+      --code-keyword: #5ea5ff;
+      --code-func: #c8cedb;
+      --code-symbol: #f0b37d;
+      --selection: rgba(88, 151, 255, 0.45);
+      --prompt-shadow: 0 18px 32px rgba(20, 30, 55, 0.18);
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --font-ui: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+      --font-code: "SFMono-Regular", "Consolas", "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at top left, rgba(79, 108, 255, 0.12), transparent 30%),
+        linear-gradient(180deg, #f5f7fb 0%, #e8edf5 100%);
+      color: var(--text);
+      font-family: var(--font-ui);
+    }
+
+    .demo-frame {
+      width: 856px;
+      height: 490px;
+      padding: 12px;
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.82));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .demo-canvas {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      border-radius: 22px;
+      background:
+        linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr;
+      gap: 12px;
+      width: 100%;
+      height: 100%;
+      padding: 16px 18px 88px;
+      transition:
+        gap 0.6s var(--ease),
+        grid-template-columns 0.7s var(--ease),
+        grid-template-rows 0.7s var(--ease),
+        padding 0.7s var(--ease);
+    }
+
+    .question-panel {
+      width: 100%;
+      padding: 0;
+      transition:
+        opacity 0.45s var(--ease),
+        transform 0.7s var(--ease),
+        filter 0.7s var(--ease),
+        width 0.7s var(--ease);
+    }
+
+    .demo-canvas.is-fullscreen .main-layout {
+      grid-template-columns: 255px 1fr;
+      grid-template-rows: 1fr;
+      gap: 18px;
+      padding-top: 14px;
+      padding-right: 14px;
+      padding-bottom: 78px;
+    }
+
+    .demo-canvas.is-fullscreen .question-panel {
+      width: 255px;
+      opacity: 1;
+      transform: none;
+      filter: none;
+    }
+
+    .crumb {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .example-card {
+      max-width: 100%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: #f5f6f8;
+      border: 1px solid rgba(209, 214, 224, 0.45);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .example-card p {
+      margin: 0;
+      font-size: 11px;
+      line-height: 1.85;
+      color: #3a465c;
+    }
+
+    .workspace-panel {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+      transition:
+        transform 0.7s var(--ease),
+        padding 0.7s var(--ease),
+        border-color 0.7s var(--ease);
+    }
+
+    .demo-canvas.is-fullscreen .workspace-panel {
+      padding-left: 18px;
+      border-left: 1px solid rgba(217, 223, 233, 0.92);
+    }
+
+    .workspace-top {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      z-index: 3;
+    }
+
+    .lang-wrap {
+      position: relative;
+      width: 116px;
+    }
+
+    .lang-select {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      height: 34px;
+      padding: 0 14px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      font-size: 11px;
+      color: #2a344b;
+      box-shadow: 0 4px 10px rgba(14, 20, 34, 0.04);
+    }
+
+    .caret {
+      width: 8px;
+      height: 8px;
+      border-right: 1.5px solid #9ba5b5;
+      border-bottom: 1.5px solid #9ba5b5;
+      transform: rotate(45deg) translateY(-2px);
+      transition: transform 0.35s var(--ease);
+    }
+
+    .lang-wrap.is-open .caret {
+      transform: rotate(-135deg) translateY(-1px);
+    }
+
+    .lang-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      width: 100%;
+      padding: 6px;
+      border-radius: 12px;
+      border: 1px solid rgba(208, 214, 225, 0.9);
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 18px 36px rgba(25, 35, 58, 0.18);
+      opacity: 0;
+      transform: translateY(-6px) scale(0.98);
+      transform-origin: top center;
+      pointer-events: none;
+      transition:
+        opacity 0.35s var(--ease),
+        transform 0.35s var(--ease);
+    }
+
+    .lang-wrap.is-open .lang-dropdown {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .lang-option {
+      padding: 7px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      color: #455066;
+    }
+
+    .lang-option.is-active {
+      background: var(--brand-soft);
+      color: var(--brand);
+      font-weight: 600;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .icon-button {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: #24314a;
+      transition:
+        transform 0.28s var(--ease),
+        background 0.28s var(--ease),
+        box-shadow 0.28s var(--ease),
+        color 0.28s var(--ease);
+    }
+
+    .icon-button svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+      stroke: none;
+    }
+
+    .icon-button.is-emphasis,
+    .icon-button.is-active {
+      background: rgba(79, 108, 255, 0.12);
+      color: var(--brand);
+      box-shadow: 0 8px 16px rgba(79, 108, 255, 0.18);
+    }
+
+    .icon-button.is-pressed {
+      transform: scale(0.92);
+    }
+
+    .editor-card {
+      position: relative;
+      height: 170px;
+      border-radius: 14px;
+      overflow: hidden;
+      background: var(--editor);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 12px 30px rgba(15, 20, 30, 0.16);
+    }
+
+    .editor-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 100% 31px;
+      pointer-events: none;
+    }
+
+    .code-area {
+      position: relative;
+      z-index: 1;
+      padding: 10px 0 0;
+      font-family: var(--font-code);
+      font-size: 10px;
+      color: var(--editor-text);
+    }
+
+    .code-line {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      align-items: center;
+      height: 24px;
+      padding-right: 14px;
+      white-space: pre;
+    }
+
+    .line-no {
+      color: #828793;
+      text-align: right;
+      padding-right: 12px;
+      user-select: none;
+    }
+
+    .code {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      min-height: 18px;
+    }
+
+    .kw {
+      color: var(--code-keyword);
+    }
+
+    .func {
+      color: var(--code-func);
+    }
+
+    .sym {
+      color: var(--code-symbol);
+    }
+
+    .editable-text,
+    .pasted-text {
+      display: inline-block;
+      min-width: 4px;
+      padding: 1px 2px;
+      border-radius: 4px;
+      transition:
+        background 0.28s var(--ease),
+        color 0.28s var(--ease),
+        transform 0.28s var(--ease),
+        opacity 0.35s var(--ease);
+    }
+
+    .editable-text.is-selected {
+      background: var(--selection);
+      color: #ffffff;
+    }
+
+    .pasted-inline {
+      display: inline-block;
+      max-width: 0;
+      opacity: 0;
+      overflow: hidden;
+      vertical-align: middle;
+      transition:
+        opacity 0.35s var(--ease),
+        max-width 0.35s var(--ease);
+    }
+
+    .pasted-inline.is-visible {
+      max-width: 240px;
+      opacity: 1;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 1.5px;
+      height: 14px;
+      margin-left: 2px;
+      border-radius: 999px;
+      background: #b8c9ff;
+      box-shadow: 0 0 12px rgba(122, 153, 255, 0.7);
+      animation: blink 0.9s infinite steps(1);
+      vertical-align: middle;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      50.01%, 100% { opacity: 0; }
+    }
+
+    .bottom-panel {
+      margin-top: 10px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      border-radius: 14px;
+      border: 1px solid rgba(212, 217, 227, 0.95);
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid rgba(223, 228, 237, 0.95);
+      background: #fcfdff;
+    }
+
+    .tab {
+      min-width: 92px;
+      height: 34px;
+      padding: 0 18px;
+      border: none;
+      background: transparent;
+      color: #5a6882;
+      font-size: 11px;
+      font-weight: 600;
+      transition:
+        color 0.28s var(--ease),
+        background 0.28s var(--ease);
+    }
+
+    .tab.is-active {
+      background: #ffffff;
+      color: var(--brand);
+      box-shadow: inset 0 2px 0 var(--brand);
+    }
+
+    .panel-body {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      padding: 10px 12px;
+    }
+
+    .test-panel,
+    .result-panel {
+      position: absolute;
+      inset: 10px 12px;
+      transition:
+        opacity 0.35s var(--ease),
+        transform 0.35s var(--ease);
+    }
+
+    .result-panel {
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+    }
+
+    .panel-body.is-result .test-panel {
+      opacity: 0;
+      transform: translateY(-10px);
+      pointer-events: none;
+    }
+
+    .panel-body.is-result .result-panel {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .case-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .case-tag,
+    .case-outline {
+      height: 24px;
+      padding: 0 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .case-tag {
+      background: #f2f4f8;
+      color: #2e3648;
+      font-weight: 700;
+    }
+
+    .case-outline {
+      border: 1px solid var(--line);
+      color: #435068;
+      background: #ffffff;
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .input-card label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 10px;
+      color: #55637d;
+    }
+
+    .input-box {
+      height: 50px;
+      border-radius: 12px;
+      background: #f4f5f7;
+      border: 1px solid rgba(223, 227, 235, 0.9);
+      padding: 12px 16px;
+      font-size: 12px;
+      color: #1f2a3d;
+      display: flex;
+      align-items: center;
+    }
+
+    .result-card {
+      height: 100%;
+      border-radius: 14px;
+      background:
+        linear-gradient(180deg, rgba(47, 177, 109, 0.12), rgba(47, 177, 109, 0.04));
+      border: 1px solid rgba(47, 177, 109, 0.25);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .result-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1d6f49;
+    }
+
+    .result-desc {
+      font-size: 11px;
+      color: #2f5f49;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .action-btn {
+      min-width: 76px;
+      height: 36px;
+      padding: 0 20px;
+      border-radius: 12px;
+      border: 1px solid var(--line-strong);
+      background: #ffffff;
+      color: #233047;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 8px 18px rgba(20, 26, 40, 0.06);
+      transition:
+        transform 0.28s var(--ease),
+        box-shadow 0.28s var(--ease),
+        background 0.28s var(--ease),
+        border-color 0.28s var(--ease),
+        color 0.28s var(--ease);
+    }
+
+    .action-btn.is-active {
+      background: #eef2ff;
+      border-color: rgba(79, 108, 255, 0.45);
+      color: var(--brand);
+      box-shadow: 0 12px 20px rgba(79, 108, 255, 0.16);
+    }
+
+    .demo-canvas.is-fullscreen .workspace-top {
+      margin-bottom: 6px;
+    }
+
+    .demo-canvas.is-fullscreen .editor-card {
+      height: 148px;
+    }
+
+    .demo-canvas.is-fullscreen .code-line {
+      height: 24px;
+    }
+
+    .demo-canvas.is-fullscreen .bottom-panel {
+      min-height: 120px;
+    }
+
+    .demo-canvas.is-fullscreen .panel-body {
+      min-height: 86px;
+    }
+
+    .demo-canvas.is-fullscreen .result-card {
+      padding: 12px 14px;
+      gap: 4px;
+    }
+
+    .demo-canvas.is-fullscreen .result-title {
+      font-size: 14px;
+      line-height: 1.25;
+    }
+
+    .demo-canvas.is-fullscreen .result-desc {
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
+    .demo-canvas.is-fullscreen .action-row {
+      margin-top: 8px;
+    }
+
+    .focus-box {
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-radius: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.92);
+      box-shadow:
+        0 0 0 9999px rgba(10, 16, 29, 0.26),
+        0 0 0 6px rgba(79, 108, 255, 0.28),
+        0 18px 32px rgba(6, 12, 25, 0.32);
+      opacity: 0;
+      pointer-events: none;
+      transition:
+        top 0.55s var(--ease),
+        left 0.55s var(--ease),
+        width 0.55s var(--ease),
+        height 0.55s var(--ease),
+        opacity 0.3s ease;
+      z-index: 10;
+    }
+
+    .focus-box.is-visible {
+      opacity: 1;
+    }
+
+    .prompt-card {
+      position: absolute;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      width: 760px;
+      min-height: 50px;
+      padding: 12px 16px;
+      border-radius: 16px;
+      background: rgba(18, 24, 38, 0.9);
+      box-shadow: var(--prompt-shadow);
+      color: #ffffff;
+      z-index: 11;
+    }
+
+    .prompt-text {
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .mouse {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      border: 2px solid rgba(255, 255, 255, 0.95);
+      background: rgba(79, 108, 255, 0.92);
+      box-shadow:
+        0 8px 18px rgba(7, 17, 39, 0.28),
+        0 0 0 6px rgba(79, 108, 255, 0.18);
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      pointer-events: none;
+      transition:
+        top 0.55s var(--ease),
+        left 0.55s var(--ease),
+        opacity 0.28s ease,
+        transform 0.22s ease;
+      z-index: 12;
+    }
+
+    .mouse.is-visible {
+      opacity: 1;
+    }
+
+    .mouse.is-clicking {
+      transform: translate(-50%, -50%) scale(0.8);
+    }
+
+    @media (max-width: 920px) {
+      body {
+        padding: 14px;
+      }
+
+      .demo-frame {
+        transform-origin: center;
+        transform: scale(calc((100vw - 28px) / 856));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-frame">
+    <div class="demo-canvas" id="stage">
+      <div class="main-layout">
+        <aside class="question-panel" id="questionPanel">
+          <div class="crumb">11. 测试a+b</div>
+          <div class="example-card">
+            <p><strong>输入：</strong> a = 1, b = 2</p>
+            <p><strong>输出：</strong> 3</p>
+          </div>
+        </aside>
+
+        <section class="workspace-panel" id="workspacePanel">
+          <div class="workspace-top">
+            <div class="lang-wrap" id="langWrap">
+              <div class="lang-select" id="languageSelect">
+                <span>C</span>
+                <span class="caret"></span>
+              </div>
+              <div class="lang-dropdown" id="languageDropdown">
+                <div class="lang-option is-active">C</div>
+                <div class="lang-option">C++</div>
+                <div class="lang-option">Java</div>
+                <div class="lang-option">Python</div>
+              </div>
+            </div>
+
+            <div class="toolbar" id="toolbar">
+              <button class="icon-button" id="btn-reset" aria-label="重置">
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M5.14258 6.27441C5.14258 6.59 4.88688 6.8457 4.57129 6.8457C4.25576 6.84563 4 6.58996 4 6.27441V3.10547C2.56649 4.30023 1.71387 6.07777 1.71387 8C1.71387 11.5048 4.52856 14.3456 8 14.3457C8.31545 14.3458 8.57117 14.6044 8.57129 14.9229C8.57129 15.2414 8.31553 15.4999 8 15.5C3.89738 15.4999 0.571289 12.1421 0.571289 8C0.571289 6.02795 1.33195 4.18337 2.64062 2.80762H0.577148C0.258523 2.80762 0 2.54909 0 2.23047C0.000162323 1.91198 0.258623 1.6543 0.577148 1.6543H5.14258V6.27441ZM8 0.5C12.1026 0.500076 15.4287 3.85791 15.4287 8C15.4287 9.97312 14.6674 11.8177 13.3594 13.1924H15.4229C15.7415 13.1924 16 13.4509 16 13.7695C15.9998 14.088 15.7414 14.3457 15.4229 14.3457H10.8574V9.72559C10.8574 9.41 11.1131 9.1543 11.4287 9.1543C11.7442 9.15437 12 9.41004 12 9.72559V12.8955C13.4324 11.7019 14.2852 9.92353 14.2852 8C14.2852 4.49516 11.4714 1.65437 8 1.6543C7.68455 1.65422 7.42883 1.39562 7.42871 1.07715C7.42871 0.75857 7.68447 0.500076 8 0.5Z"></path>
+                </svg>
+              </button>
+              <button class="icon-button" id="btn-fullscreen" aria-label="全屏">
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M1 6H0V2C0 0.89543 0.89543 0 2 0H6V1H2C1.48716 1 1.06449 1.38604 1.00673 1.88338L1 2V6ZM15 10H16V14C16 15.1046 15.1046 16 14 16H10V15H14C14.5128 15 14.9355 14.614 14.9933 14.1166L15 14V10ZM10 0V1H14L14.1166 1.00673C14.1652 1.01237 14.2128 1.02151 14.259 1.03387L8.96447 6.32843L9.67157 7.03553L14.9661 1.74098C14.9882 1.82359 15 1.91042 15 2V6H16V2C16 0.89543 15.1046 0 14 0H10ZM6 15V16H2C1.6291 16 1.28177 15.899 0.984016 15.7231L0.964466 15.7426L0.877053 15.6552C0.667833 15.513 0.486989 15.3322 0.344773 15.1229L0.257359 15.0355L0.27691 15.016C0.100965 14.7182 0 14.3709 0 14V10H1V14C1 14.0896 1.01178 14.1764 1.03387 14.259L6.62132 8.67157L7.32843 9.37868L1.74098 14.9661C1.78721 14.9785 1.83476 14.9876 1.88338 14.9933L2 15H6Z"></path>
+                </svg>
+              </button>
+              <button class="icon-button" id="btn-copy" aria-label="复制">
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M16 2C16 0.89543 15.1046 0 14 0H6C4.89543 0 4 0.89543 4 2V4H2C0.89543 4 0 4.89543 0 6V14C0 15.1046 0.89543 16 2 16H10C11.1046 16 12 15.1046 12 14V12H14C15.1046 12 16 11.1046 16 10V2ZM12 11H14C14.5128 11 14.9355 10.614 14.9933 10.1166L15 10V2C15 1.48716 14.614 1.06449 14.1166 1.00673L14 1H6C5.48716 1 5.06449 1.38604 5.00673 1.88338L5 2V4H10C11.1046 4 12 4.89543 12 6V11ZM6 12H11V14L10.9933 14.1166C10.9355 14.614 10.5128 15 10 15H2L1.88338 14.9933C1.38604 14.9355 1 14.5128 1 14V6L1.00673 5.88338C1.06449 5.38604 1.48716 5 2 5H4V10C4 11.1046 4.89543 12 6 12ZM5 5H10L10.1166 5.00673C10.614 5.06449 11 5.48716 11 6V11H6L5.88338 10.9933C5.38604 10.9355 5 10.5128 5 10V5Z"></path>
+                </svg>
+              </button>
+              <button class="icon-button" id="btn-paste" aria-label="粘贴">
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M14.3661 1.19787L14.8917 0.34713C14.5264 0.121456 14.1048 0 13.6667 0H13.108V1H13.6667C13.9178 1 14.1576 1.06909 14.3661 1.19787ZM15 2.52699H16V2.33333C16 2.00388 15.9314 1.68314 15.8003 1.38775L14.8862 1.79331C14.9609 1.96162 15 2.14426 15 2.33333V2.52699ZM16 4.52699H15V3.52699H16V4.52699ZM15 6.52699H16V5.52699H15V6.52699ZM16 8.52699H15V7.52699H16V8.52699ZM14.8538 10.2746L15.7433 10.7315C15.9112 10.4046 16 10.0415 16 9.66667V9.52699H15V9.66667C15 9.88166 14.9494 10.0883 14.8538 10.2746ZM13.6127 12V11H13.6667C13.8968 11 14.1174 10.942 14.3135 10.833L14.7996 11.7069C14.4558 11.8981 14.0681 12 13.6667 12H13.6127ZM12 11H12.6127V12H12V14C12 15.1046 11.1046 16 10 16H2C0.89543 16 0 15.1046 0 14V6C0 4.89543 0.89543 4 2 4H4V3.75237H5V4H10C11.1046 4 12 4.89543 12 6V11ZM9.61269 12V11H10.6127V12H9.61269ZM7.61269 11V12H8.61269V11H7.61269ZM5.43386 11.8202L5.81957 10.8976C5.98061 10.9649 6.15409 11 6.33333 11H6.61269V12H6.33333C6.02107 12 5.71654 11.9384 5.43386 11.8202ZM5.00113 9.72236L4.00197 9.76315C4.01981 10.2002 4.15874 10.6168 4.39971 10.973L5.22794 10.4126C5.09036 10.2092 5.01134 9.97225 5.00113 9.72236ZM4 7.75237H5V8.75237H4V7.75237ZM5 5.75237H4V6.75237H5V5.75237ZM5.06649 1.91594L4.11664 1.60323C4.03966 1.83706 4 2.08283 4 2.33333V2.75237H5V2.33333C5 2.1894 5.02263 2.04917 5.06649 1.91594ZM6.03886 0.0184572L6.16407 1.01059C5.91762 1.04169 5.68751 1.14082 5.49595 1.29568L4.86728 0.518002C5.20238 0.247116 5.6065 0.0730229 6.03886 0.0184572ZM8.10795 1V0H7.10795V1H8.10795ZM10.108 0V1H9.10795V0H10.108ZM12.108 1V0H11.108V1H12.108ZM10 5H2C1.48716 5 1.06449 5.38604 1.00673 5.88338L1 6V14C1 14.5128 1.38604 14.9355 1.88338 14.9933L2 15H10C10.5128 15 10.9355 14.614 10.9933 14.1166L11 14V6C11 5.48716 10.614 5.06449 10.1166 5.00673L10 5Z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="editor-card" id="editorCard">
+            <div class="editor-grid"></div>
+            <div class="code-area">
+              <div class="code-line">
+                <div class="line-no">1</div>
+                <div class="code"><span class="kw">#include</span> <span class="sym">&lt;stdio.h&gt;</span></div>
+              </div>
+              <div class="code-line">
+                <div class="line-no">2</div>
+                <div class="code"><span class="kw">#include</span> <span class="sym">&lt;stdlib.h&gt;</span></div>
+              </div>
+              <div class="code-line">
+                <div class="line-no">3</div>
+                <div class="code"><span class="kw">#include</span> <span class="sym">&lt;string.h&gt;</span></div>
+              </div>
+              <div class="code-line">
+                <div class="line-no">4</div>
+                <div class="code"> </div>
+              </div>
+              <div class="code-line">
+                <div class="line-no">5</div>
+                <div class="code"><span class="kw">int</span> <span class="func">sumab</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) {</div>
+              </div>
+              <div class="code-line" id="typingLine">
+                <div class="line-no">6</div>
+                <div class="code">
+                  <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                  <span class="editable-text" id="editableText"></span>
+                  <span class="pasted-inline" id="pastedInline">
+                    <span class="pasted-text" id="pastedText">return a + b;</span>
+                  </span>
+                  <span class="cursor" id="typingCursor"></span>
+                </div>
+              </div>
+              <div class="code-line">
+                <div class="line-no">7</div>
+                <div class="code">}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bottom-panel" id="resultBlock">
+            <div class="tabs">
+              <button class="tab is-active" id="tabCase">测试用例</button>
+              <button class="tab" id="tabResult">执行结果</button>
+            </div>
+            <div class="panel-body" id="panelBody">
+              <div class="test-panel">
+                <div class="case-row">
+                  <div class="case-tag">case1</div>
+                  <div class="case-outline">自定义</div>
+                </div>
+                <div class="input-grid">
+                  <div class="input-card">
+                    <label>a =</label>
+                    <div class="input-box">1</div>
+                  </div>
+                  <div class="input-card">
+                    <label>b =</label>
+                    <div class="input-box">2</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="result-panel">
+                <div class="result-card">
+                  <div class="result-title" id="resultTitle">3</div>
+                  <div class="result-desc" id="resultDesc">当前测试用例输出结果为 3。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="action-row">
+            <button class="action-btn" id="runBtn">运行</button>
+            <button class="action-btn" id="submitBtn">提交</button>
+          </div>
+        </section>
+      </div>
+
+      <div class="focus-box" id="focusBox"></div>
+      <div class="prompt-card">
+        <div class="prompt-text" id="promptText">1.请选择自己熟悉的编程语言进行作答。</div>
+      </div>
+      <div class="mouse" id="mouse"></div>
+    </div>
+  </div>
+
+  <script>
+    const stage = document.getElementById("stage");
+    const focusBox = document.getElementById("focusBox");
+    const mouse = document.getElementById("mouse");
+    const promptText = document.getElementById("promptText");
+    const langWrap = document.getElementById("langWrap");
+    const editableText = document.getElementById("editableText");
+    const pastedInline = document.getElementById("pastedInline");
+    const typingCursor = document.getElementById("typingCursor");
+    const panelBody = document.getElementById("panelBody");
+    const tabCase = document.getElementById("tabCase");
+    const tabResult = document.getElementById("tabResult");
+    const runBtn = document.getElementById("runBtn");
+    const submitBtn = document.getElementById("submitBtn");
+    const resultTitle = document.getElementById("resultTitle");
+    const resultDesc = document.getElementById("resultDesc");
+
+    const iconButtons = {
+      reset: document.getElementById("btn-reset"),
+      fullscreen: document.getElementById("btn-fullscreen"),
+      copy: document.getElementById("btn-copy"),
+      paste: document.getElementById("btn-paste")
+    };
+
+    const TOTAL_STEPS = 8;
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const sampleCode = "return a + b;";
+
+    function clearStates() {
+      langWrap.classList.remove("is-open");
+      stage.classList.remove("is-fullscreen");
+      editableText.textContent = "";
+      editableText.classList.remove("is-selected");
+      pastedInline.classList.remove("is-visible");
+      panelBody.classList.remove("is-result");
+      tabCase.classList.add("is-active");
+      tabResult.classList.remove("is-active");
+      runBtn.classList.remove("is-active");
+      submitBtn.classList.remove("is-active");
+      resultTitle.textContent = "3";
+      resultDesc.textContent = "当前测试用例输出结果为 3。";
+
+      Object.values(iconButtons).forEach((button) => {
+        button.classList.remove("is-active", "is-emphasis", "is-pressed");
+      });
+
+      typingCursor.style.opacity = "1";
+      hideFocus();
+      hideMouse();
+    }
+
+    function setPrompt(step, text) {
+      promptText.textContent = `${step}.${text}`;
+    }
+
+    function getTargetRect(targets, padding = 10) {
+      const nodes = []
+        .concat(targets)
+        .map((target) => {
+          if (typeof target === "string") {
+            return document.querySelector(target);
+          }
+          return target;
+        })
+        .filter(Boolean);
+
+      if (!nodes.length) {
+        return null;
+      }
+
+      const stageRect = stage.getBoundingClientRect();
+      const rects = nodes.map((node) => node.getBoundingClientRect());
+      const left = Math.min(...rects.map((rect) => rect.left)) - stageRect.left - padding;
+      const top = Math.min(...rects.map((rect) => rect.top)) - stageRect.top - padding;
+      const right = Math.max(...rects.map((rect) => rect.right)) - stageRect.left + padding;
+      const bottom = Math.max(...rects.map((rect) => rect.bottom)) - stageRect.top + padding;
+
+      return {
+        left,
+        top,
+        width: right - left,
+        height: bottom - top
+      };
+    }
+
+    function showFocus(targets, padding = 10) {
+      const rect = getTargetRect(targets, padding);
+      if (!rect) {
+        hideFocus();
+        return;
+      }
+
+      showFocusRect(rect);
+    }
+
+    function showFocusRect(rect) {
+      focusBox.style.left = `${rect.left}px`;
+      focusBox.style.top = `${rect.top}px`;
+      focusBox.style.width = `${rect.width}px`;
+      focusBox.style.height = `${rect.height}px`;
+      focusBox.classList.add("is-visible");
+    }
+
+    function hideFocus() {
+      focusBox.classList.remove("is-visible");
+    }
+
+    function showMouse(target, offsetX = 0, offsetY = 0) {
+      const element = typeof target === "string" ? document.querySelector(target) : target;
+      if (!element) {
+        return;
+      }
+
+      const stageRect = stage.getBoundingClientRect();
+      const rect = element.getBoundingClientRect();
+      const x = rect.left - stageRect.left + rect.width / 2 + offsetX;
+      const y = rect.top - stageRect.top + rect.height / 2 + offsetY;
+      mouse.style.left = `${x}px`;
+      mouse.style.top = `${y}px`;
+      mouse.classList.add("is-visible");
+    }
+
+    function hideMouse() {
+      mouse.classList.remove("is-visible", "is-clicking");
+    }
+
+    async function clickMouse(target, offsetX = 0, offsetY = 0) {
+      showMouse(target, offsetX, offsetY);
+      await sleep(260);
+      mouse.classList.add("is-clicking");
+      await sleep(160);
+      mouse.classList.remove("is-clicking");
+    }
+
+    async function typeCode(text) {
+      editableText.textContent = "";
+      for (let index = 0; index < text.length; index += 1) {
+        editableText.textContent += text[index];
+        await sleep(60);
+      }
+    }
+
+    async function pulseButton(button) {
+      button.classList.add("is-pressed");
+      await sleep(180);
+      button.classList.remove("is-pressed");
+    }
+
+    function activateToolbarButton(name) {
+      Object.entries(iconButtons).forEach(([key, button]) => {
+        button.classList.toggle("is-active", key === name);
+      });
+    }
+
+    function setResultMode(active) {
+      panelBody.classList.toggle("is-result", active);
+      tabCase.classList.toggle("is-active", !active);
+      tabResult.classList.toggle("is-active", active);
+    }
+
+    async function playStep1() {
+      setPrompt(1, "请选择自己熟悉的编程语言进行作答。");
+      showFocus(["#languageSelect", "#languageDropdown"], 12);
+      await clickMouse("#languageSelect");
+      langWrap.classList.add("is-open");
+      await sleep(2200);
+    }
+
+    async function playStep2() {
+      setPrompt(2, "请在模板方法内部完成代码编写。");
+      langWrap.classList.remove("is-open");
+      const editorRect = getTargetRect("#editorCard", 8);
+      if (editorRect) {
+        showFocusRect(editorRect);
+      }
+      showMouse("#typingLine", 80, 0);
+      await sleep(280);
+      await typeCode(sampleCode);
+      await sleep(1200);
+    }
+
+    async function playStep3() {
+      setPrompt(3, "选中编译器内的文字后，点击【复制】即可复制选中的内容。");
+      editableText.classList.add("is-selected");
+      activateToolbarButton("copy");
+      showFocus(["#toolbar", "#editorCard"], 16);
+      await sleep(700);
+      await clickMouse("#btn-copy");
+      await pulseButton(iconButtons.copy);
+      await sleep(1800);
+    }
+
+    async function playStep4() {
+      setPrompt(4, "复制粘贴按钮仅对编译器内部的文字有效，且不受整张试卷禁止复制粘贴配置影响。");
+      editableText.classList.remove("is-selected");
+      activateToolbarButton("paste");
+      showFocus(["#toolbar", "#editorCard"], 16);
+      await clickMouse("#btn-paste");
+      await pulseButton(iconButtons.paste);
+      pastedInline.classList.add("is-visible");
+      await sleep(1200);
+      pastedInline.classList.remove("is-visible");
+      await sleep(900);
+    }
+
+    async function playStep5() {
+      setPrompt(5, "如误改模板代码或想清空当前已有代码，可点击重置；重置后你已编写的代码也会被清空。");
+      activateToolbarButton("reset");
+      showFocus("#btn-reset", 14);
+      await clickMouse("#btn-reset");
+      await pulseButton(iconButtons.reset);
+      await sleep(1900);
+    }
+
+    async function playStep6() {
+      setPrompt(6, "点击可切换全屏状态，再次点击可返回试卷。");
+      activateToolbarButton("fullscreen");
+      showFocus("#btn-fullscreen", 14);
+      await clickMouse("#btn-fullscreen");
+      await pulseButton(iconButtons.fullscreen);
+      stage.classList.add("is-fullscreen");
+      await sleep(450);
+      showFocus(["#workspacePanel", "#editorCard", "#resultBlock"], 18);
+      await sleep(1850);
+    }
+
+    async function playStep7() {
+      setPrompt(7, "【运行】按钮用于运行当前测试用例。每次运行间隔为10秒，请珍惜每次运行机会。");
+      runBtn.classList.add("is-active");
+      showFocus("#runBtn", 16);
+      await clickMouse("#runBtn");
+      await sleep(260);
+      resultTitle.textContent = "3";
+      resultDesc.textContent = "当前测试用例输出结果为 3。";
+      setResultMode(true);
+      await sleep(2200);
+    }
+
+    async function playStep8() {
+      setPrompt(8, "【提交】按钮用于判断你的回答是否能通过最终验证。");
+      runBtn.classList.remove("is-active");
+      submitBtn.classList.add("is-active");
+      showFocus("#submitBtn", 16);
+      await clickMouse("#submitBtn");
+      await sleep(260);
+      resultTitle.textContent = "通过";
+      resultDesc.textContent = "代码已通过最终验证。";
+      await sleep(2000);
+    }
+
+    async function playLoop() {
+      while (true) {
+        clearStates();
+        await sleep(500);
+        await playStep1();
+        await playStep2();
+        await playStep3();
+        await playStep4();
+        await playStep5();
+        await playStep6();
+        await playStep7();
+        await playStep8();
+        hideFocus();
+        hideMouse();
+        await sleep(250);
+      }
+    }
+
+    playLoop();
+  </script>
+</body>
+</html>

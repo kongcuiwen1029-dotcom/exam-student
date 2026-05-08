@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>第二机位连接</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    }
+
+    .screen {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #000;
+    }
+
+    .camera {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: #000;
+      display: block;
+    }
+
+    .camera[hidden],
+    .placeholder[hidden] {
+      display: none !important;
+    }
+
+    .publisher-frame {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+      border: 0;
+      overflow: hidden;
+      clip-path: inset(50%);
+      bottom: 0;
+      right: 0;
+    }
+
+    .placeholder {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at top, rgba(84, 120, 238, 0.2), transparent 34%),
+        linear-gradient(180deg, rgba(10, 16, 30, 0.96), rgba(18, 26, 45, 0.98));
+      color: rgba(255, 255, 255, 0.88);
+      text-align: center;
+    }
+
+    .screen.is-video-ready .placeholder {
+      display: none !important;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .placeholder-copy {
+      max-width: 320px;
+    }
+
+    .placeholder-title {
+      margin: 0 0 10px;
+      color: #fff;
+      font-size: 20px;
+      line-height: 30px;
+      font-weight: 600;
+    }
+
+    .placeholder-detail {
+      margin: 0;
+      font-size: 14px;
+      line-height: 22px;
+    }
+
+    .status {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: calc(12px + env(safe-area-inset-bottom));
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 48px;
+      padding: 10px 14px;
+      border-radius: 18px;
+      background: rgba(10, 16, 30, 0.72);
+      backdrop-filter: blur(12px);
+      color: #fff;
+    }
+
+    .status.is-success {
+      top: calc(12px + env(safe-area-inset-top));
+      right: 12px;
+      bottom: auto;
+      left: auto;
+      justify-content: center;
+      min-height: 56px;
+      padding: 12px 18px;
+      border-radius: 24px;
+      background: rgba(76, 83, 101, 0.92);
+    }
+
+    .status-main {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .status.is-success .status-main {
+      flex: 0 0 auto;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: #f5a524;
+      box-shadow: 0 0 0 4px rgba(245, 165, 36, 0.2);
+    }
+
+    .status.is-success .status-dot {
+      background: #6dd400;
+      box-shadow: 0 0 0 4px rgba(109, 212, 0, 0.22);
+      animation: mobileCameraSuccessPulse 1.8s ease-in-out infinite;
+    }
+
+    .status.is-error .status-dot {
+      background: #ff6b6b;
+      box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.18);
+    }
+
+    .status-text {
+      min-width: 0;
+      font-size: 13px;
+      line-height: 20px;
+    }
+
+    .retry {
+      flex: 0 0 auto;
+      min-height: 32px;
+      padding: 0 12px;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(84, 120, 238, 0.18);
+      color: #fff;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 600;
+    }
+
+    .retry[hidden] {
+      display: none;
+    }
+
+    @keyframes mobileCameraSuccessPulse {
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(109, 212, 0, 0.34);
+        opacity: 0.86;
+      }
+
+      50% {
+        box-shadow: 0 0 0 8px rgba(109, 212, 0, 0);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="screen">
+    <video class="camera" id="camera-preview" autoplay muted playsinline hidden></video>
+    <iframe
+      class="publisher-frame"
+      id="camera-publisher"
+      title="第二机位推流通道"
+      allow="camera; microphone; autoplay; fullscreen"
+      referrerpolicy="origin"
+      tabindex="-1"
+      aria-hidden="true"
+    ></iframe>
+    <div class="placeholder" id="camera-placeholder">
+      <div class="placeholder-copy">
+        <h1 class="placeholder-title" id="placeholder-title">正在连接后置摄像头</h1>
+        <p class="placeholder-detail" id="placeholder-detail">请允许浏览器使用摄像头。</p>
+      </div>
+    </div>
+
+    <div class="status" id="status-bar">
+      <div class="status-main">
+        <span class="status-dot"></span>
+        <span class="status-text" id="status-text">连接中</span>
+      </div>
+      <button class="retry" type="button" id="retry-button">重试</button>
+    </div>
+  </main>
+
+  <script>
+    const mobileRelayBaseUrl = "https://vdo.ninja/";
+    const mobileRelayPublisherCss = `
+      html, body {
+        margin: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        overflow: hidden !important;
+        background: #000 !important;
+      }
+
+      body,
+      #app,
+      #videos,
+      .videos,
+      .videoHolder,
+      .videoContainer,
+      .main,
+      .stage,
+      .player,
+      .localVideo,
+      .videoWrapper {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: none !important;
+        max-height: none !important;
+        inset: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        background: #000 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+      }
+
+      video,
+      .videoHolder video,
+      .videoContainer video,
+      .localVideo video {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        background: #000 !important;
+      }
+    `.trim();
+
+    const screen = document.querySelector(".screen");
+    const video = document.getElementById("camera-preview");
+    const publisher = document.getElementById("camera-publisher");
+    const placeholder = document.getElementById("camera-placeholder");
+    const placeholderTitle = document.getElementById("placeholder-title");
+    const placeholderDetail = document.getElementById("placeholder-detail");
+    const statusBar = document.getElementById("status-bar");
+    const statusText = document.getElementById("status-text");
+    const retryButton = document.getElementById("retry-button");
+    let stream = null;
+
+    function setStatus(tone, text) {
+      statusBar.className = `status${tone ? ` is-${tone}` : ""}`;
+      statusText.textContent = text;
+      retryButton.hidden = tone === "success";
+    }
+
+    function showPlaceholder(title, detail) {
+      screen.classList.remove("is-video-ready");
+      placeholder.hidden = false;
+      placeholder.style.display = "grid";
+      video.pause();
+      video.hidden = true;
+      video.style.display = "none";
+      placeholderTitle.textContent = title;
+      placeholderDetail.textContent = detail;
+    }
+
+    function showVideo() {
+      screen.classList.add("is-video-ready");
+      placeholder.hidden = true;
+      placeholder.style.display = "none";
+      placeholder.setAttribute("aria-hidden", "true");
+      video.hidden = false;
+      video.style.display = "block";
+    }
+
+    function encodeBase64Text(value) {
+      const bytes = new TextEncoder().encode(value);
+      let binary = "";
+
+      bytes.forEach((byte) => {
+        binary += String.fromCharCode(byte);
+      });
+
+      return window.btoa(binary);
+    }
+
+    function buildMobileRelayUrl(params) {
+      const url = new URL(mobileRelayBaseUrl);
+
+      Object.entries(params).forEach(([key, value]) => {
+        if (value === undefined || value === null || value === false) {
+          return;
+        }
+
+        url.searchParams.set(key, value === true ? "1" : String(value));
+      });
+
+      return url.toString();
+    }
+
+    function getPublisherUrl(streamId) {
+      const params = new URLSearchParams(window.location.search);
+      const apiKey = params.get("relayApi") || streamId;
+
+      return buildMobileRelayUrl({
+        push: streamId,
+        api: apiKey,
+        webcam: true,
+        autostart: true,
+        cleanoutput: true,
+        transparent: true,
+        hideheader: true,
+        noaudio: true,
+        meshcast: true,
+        facing: "environment",
+        base64css: encodeBase64Text(mobileRelayPublisherCss),
+      });
+    }
+
+    function getMissingStreamMessage() {
+      return "缺少连接参数，请返回电脑端重新扫码。";
+    }
+
+    function getRelayErrorMessage() {
+      if (!window.isSecureContext) {
+        return "当前地址不是安全环境，浏览器已拦截摄像头。";
+      }
+
+      return "连接失败，请重试。";
+    }
+
+    function stopStream() {
+      if (!stream) {
+        return;
+      }
+
+      stream.getTracks().forEach((track) => track.stop());
+      stream = null;
+    }
+
+    async function requestRearCamera() {
+      const presets = [
+        {
+          audio: false,
+          video: {
+            facingMode: { exact: "environment" },
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
+        },
+        {
+          audio: false,
+          video: {
+            facingMode: { ideal: "environment" },
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
+        },
+        {
+          audio: false,
+          video: true
+        }
+      ];
+
+      let lastError = null;
+
+      for (const constraints of presets) {
+        try {
+          return await navigator.mediaDevices.getUserMedia(constraints);
+        } catch (error) {
+          lastError = error;
+        }
+      }
+
+      throw lastError || new Error("CAMERA_FAILED");
+    }
+
+    function startPublisher() {
+      const params = new URLSearchParams(window.location.search);
+      const streamId = params.get("streamId");
+
+      if (!streamId) {
+        showPlaceholder("无法连接摄像头", getMissingStreamMessage());
+        setStatus("error", "连接失败");
+        return;
+      }
+
+      setStatus("", "连接中");
+      showPlaceholder("正在连接后置摄像头", "请允许浏览器使用摄像头。");
+      publisher.src = getPublisherUrl(streamId);
+    }
+
+    publisher.addEventListener("error", () => {
+      showPlaceholder("无法连接摄像头", getRelayErrorMessage());
+      setStatus("error", "连接失败");
+    });
+
+    async function startCamera() {
+      stopStream();
+      publisher.removeAttribute("src");
+      setStatus("", "连接中");
+      showPlaceholder("正在连接后置摄像头", "请允许浏览器使用摄像头。");
+
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error("UNSUPPORTED");
+        }
+
+        stream = await requestRearCamera();
+        video.srcObject = stream;
+        showVideo();
+        await video.play();
+        startPublisher();
+        setStatus("success", "已连接");
+      } catch (error) {
+        stopStream();
+        showPlaceholder("无法连接摄像头", getRelayErrorMessage());
+        setStatus("error", "连接失败");
+      }
+    }
+
+    retryButton.addEventListener("click", startCamera);
+
+    window.addEventListener("pagehide", () => {
+      stopStream();
+      publisher.removeAttribute("src");
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        stopStream();
+        publisher.removeAttribute("src");
+      } else if (!publisher.getAttribute("src")) {
+        startCamera();
+      }
+    });
+
+    if (!window.isSecureContext) {
+      showPlaceholder("无法连接摄像头", getRelayErrorMessage());
+      setStatus("error", "连接失败");
+    } else {
+      try {
+        startCamera();
+      } catch (error) {
+        showPlaceholder("无法连接摄像头", getRelayErrorMessage());
+        setStatus("error", "连接失败");
+      }
+    }
+  </script>
+</body>
+</html>

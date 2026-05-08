@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>图灵考试 - 考试说明调试页</title>
+  <link rel="stylesheet" href="./styles.css">
+  <style>
+    body.modal-preview-mode {
+      min-height: auto;
+    }
+
+    body.modal-preview-mode.is-modal-open {
+      overflow: auto;
+    }
+
+    body.modal-preview-mode .app-header,
+    body.modal-preview-mode .dashboard-shell,
+    body.modal-preview-mode .site-footer {
+      display: none;
+    }
+
+    body.modal-preview-mode .guide-modal-root {
+      position: static;
+      inset: auto;
+      z-index: auto;
+      display: block;
+      place-items: initial;
+      padding: 48px 24px 80px;
+    }
+
+    body.modal-preview-mode .guide-modal-overlay {
+      display: none;
+    }
+
+    body.modal-preview-mode .guide-modal {
+      width: min(1240px, calc(100vw - 48px));
+      max-height: none;
+      margin: 0 auto;
+      grid-template-rows: auto auto auto;
+      overflow: visible;
+    }
+
+    body.modal-preview-mode .guide-modal-body {
+      grid-template-columns: 320px minmax(0, 1fr);
+    }
+
+    body.modal-preview-mode .guide-sidebar,
+    body.modal-preview-mode .guide-content {
+      min-height: auto;
+      overflow: visible;
+    }
+
+    body.modal-preview-mode .guide-sidebar {
+      align-self: start;
+    }
+
+    body.modal-preview-mode .guide-content {
+      padding-bottom: 32px;
+    }
+
+    @media (max-width: 1024px) {
+      body.modal-preview-mode .guide-modal-root {
+        padding: 24px 16px 48px;
+      }
+
+      body.modal-preview-mode .guide-modal {
+        width: min(1240px, calc(100vw - 32px));
+      }
+    }
+  </style>
+</head>
+<body class="modal-preview-mode">
+  <header class="app-header">
+    <div class="header-inner">
+      <a class="brand" href="#" aria-label="图灵考试首页">
+        <span class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 64 40" role="presentation">
+            <path d="M14 22C14 14.268 20.268 8 28 8C33.487 8 38.235 11.154 40.547 15.75C42.588 14.636 44.928 14 47.417 14C55.196 14 61.5 20.304 61.5 28.083V29.5H2.5V28.083C2.5 20.304 8.804 14 16.583 14C17.335 14 18.074 14.059 18.795 14.172C15.881 16.504 14 19.994 14 22Z"/>
+            <path d="M20 29.5V33.5C20 35.433 18.433 37 16.5 37H7.5C5.567 37 4 35.433 4 33.5V29.5"/>
+            <path d="M44 29.5V33.5C44 35.433 45.567 37 47.5 37H56.5C58.433 37 60 35.433 60 33.5V29.5"/>
+            <path d="M29.5 9.5C25.91 11.039 23.214 14.446 22.395 18.5H35.852C36.541 20.202 37.736 21.649 39.271 22.649C38.282 25.978 35.198 28.5 31.5 28.5C27.006 28.5 23.244 24.777 22.689 20.429"/>
+          </svg>
+        </span>
+        <span class="brand-text">图灵考试</span>
+      </a>
+
+      <nav class="primary-nav" aria-label="主导航">
+        <a class="is-active" href="#">我的考试</a>
+        <a href="#">我的报名</a>
+        <a href="#">我的简历</a>
+      </nav>
+
+      <button class="user-menu" type="button" aria-label="打开用户菜单">
+        <span>孔翠雯</span>
+        <svg viewBox="0 0 12 12" aria-hidden="true">
+          <path d="M2.25 4.5L6 8.25L9.75 4.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.4"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="dashboard-shell">
+    <section class="toolbar-card">
+      <form class="toolbar-form" id="filter-form">
+        <label class="field field-date" aria-label="开始时间">
+          <input id="start-input" type="text" placeholder="开始时间">
+          <span class="field-icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16">
+              <rect x="2.5" y="3.5" width="11" height="10" rx="2"></rect>
+              <path d="M5 2.5V5M11 2.5V5M2.5 6.5H13.5"></path>
+            </svg>
+          </span>
+        </label>
+        <span class="toolbar-separator" aria-hidden="true">-</span>
+        <label class="field field-date" aria-label="结束时间">
+          <input id="end-input" type="text" placeholder="结束时间">
+          <span class="field-icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16">
+              <rect x="2.5" y="3.5" width="11" height="10" rx="2"></rect>
+              <path d="M5 2.5V5M11 2.5V5M2.5 6.5H13.5"></path>
+            </svg>
+          </span>
+        </label>
+
+        <label class="field field-select" aria-label="考试类型">
+          <select id="type-select">
+            <option value="">请选择考试类型</option>
+            <option value="AI面试">AI面试</option>
+            <option value="笔试">笔试</option>
+            <option value="人工面试">人工面试</option>
+            <option value="心理测评">心理测评</option>
+            <option value="混合考试">混合考试</option>
+          </select>
+        </label>
+
+        <label class="field field-search" aria-label="关键词搜索">
+          <input id="keyword-input" type="search" placeholder="请输入关键词">
+          <span class="field-icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16">
+              <circle cx="7" cy="7" r="4.5"></circle>
+              <path d="M10.5 10.5L14 14"></path>
+            </svg>
+          </span>
+        </label>
+
+        <button class="button button-primary" type="submit">搜索</button>
+        <button class="button button-secondary" type="reset">重置</button>
+      </form>
+    </section>
+
+    <div class="content-grid">
+      <section class="main-column">
+        <div class="segment-card">
+          <div class="segmented-control" role="tablist" aria-label="考试状态筛选">
+            <button class="segment is-active" type="button" data-filter="all" aria-pressed="true">全部</button>
+            <button class="segment" type="button" data-filter="pending" aria-pressed="false">待考试</button>
+            <button class="segment" type="button" data-filter="completed" aria-pressed="false">已完成</button>
+          </div>
+
+          <button class="icon-button" id="refresh-button" type="button" aria-label="刷新考试列表">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M16.6 8.4A6.6 6.6 0 1 0 18 12"></path>
+              <path d="M18 4.5V9H13.5"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div class="exam-list" id="exam-list" aria-live="polite"></div>
+      </section>
+
+      <aside class="side-column">
+        <section class="calendar-card">
+          <div class="calendar-head">
+            <button class="calendar-switch" type="button" aria-label="上个月">
+              <svg viewBox="0 0 12 12" aria-hidden="true">
+                <path d="M7.75 2.25L4 6L7.75 9.75" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.4"/>
+              </svg>
+            </button>
+            <h2>Dec 2022</h2>
+            <button class="calendar-switch" type="button" aria-label="下个月">
+              <svg viewBox="0 0 12 12" aria-hidden="true">
+                <path d="M4.25 2.25L8 6L4.25 9.75" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.4"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="calendar-weekdays" aria-hidden="true">
+            <span>Sun</span>
+            <span>Mon</span>
+            <span>Tue</span>
+            <span>Wed</span>
+            <span>Thu</span>
+            <span>Fri</span>
+            <span>Sat</span>
+          </div>
+
+          <div class="calendar-grid" id="calendar-grid"></div>
+
+          <div class="timeline-list" id="timeline-list"></div>
+        </section>
+
+        <section class="notice-card">
+          <h2>系统公告</h2>
+          <div class="notice-list" id="notice-list"></div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">京ICP备05046678号-21</footer>
+
+  <div class="guide-modal-root" id="guide-modal-root" hidden>
+    <button class="guide-modal-overlay" type="button" data-guide-close aria-label="关闭考试说明弹窗"></button>
+    <section class="guide-modal" role="dialog" aria-modal="true" aria-labelledby="guide-modal-title">
+      <header class="guide-modal-header">
+        <div class="guide-modal-heading">
+          <p class="guide-modal-kicker">考试说明</p>
+          <h2 id="guide-modal-title">考试说明</h2>
+          <p class="guide-modal-exam" id="guide-modal-exam"></p>
+          <p class="guide-modal-subtitle" id="guide-modal-subtitle"></p>
+        </div>
+        <button class="guide-close-button" id="guide-close-button" type="button" aria-label="关闭考试说明">
+          <svg viewBox="0 0 20 20" aria-hidden="true">
+            <path d="M5 5L15 15M15 5L5 15"></path>
+          </svg>
+        </button>
+      </header>
+
+      <div class="guide-modal-body">
+        <aside class="guide-sidebar">
+          <div class="guide-sidebar-summary">
+            <span class="guide-sidebar-label">步骤总览</span>
+            <strong id="guide-step-count"></strong>
+          </div>
+          <div class="guide-step-list" id="guide-step-list"></div>
+        </aside>
+
+        <div class="guide-content" id="guide-step-content"></div>
+      </div>
+
+      <footer class="guide-modal-footer">
+        <p>检测结果仅供参考，不影响正式考试进入。</p>
+      </footer>
+    </section>
+  </div>
+
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  <script src="./script.js"></script>
+  <script>
+    window.addEventListener("load", () => {
+      if (typeof runGuideStepEntryEffects === "function") {
+        runGuideStepEntryEffects = () => {};
+      }
+
+      if (typeof openGuideModal === "function") {
+        openGuideModal("exam-ongoing");
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 84 164" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="&#231;&#188;&#150;&#231;&#187;&#132;">
+<g id="&#230;&#137;&#139;&#230;&#156;&#186;">
+<rect id="&#231;&#159;&#169;&#229;&#189;&#162;" x="1" y="1" width="82" height="162" rx="10" fill="var(--fill-0, #273245)" stroke="var(--stroke-0, #273245)" stroke-width="2"/>
+<path id="&#229;&#189;&#162;&#231;&#138;&#182;&#231;&#187;&#147;&#229;&#144;&#136;" fill-rule="evenodd" clip-rule="evenodd" d="M11 3.5C6.85786 3.5 3.5 6.85786 3.5 11V153C3.5 157.142 6.85786 160.5 11 160.5H73C77.1421 160.5 80.5 157.142 80.5 153V11C80.5 6.85786 77.1421 3.5 73 3.5H58.9024V6.5C58.9024 9.26142 56.6639 11.5 53.9024 11.5H30.0976C27.3361 11.5 25.0976 9.26142 25.0976 6.5V3.5H11Z" fill="var(--fill-0, #EEF0F5)"/>
+<path id="&#231;&#155;&#180;&#231;&#186;&#191;" d="M37 6.5H47" stroke="var(--stroke-0, #050412)" stroke-width="3" stroke-linecap="round"/>
+<path id="&#231;&#155;&#180;&#231;&#186;&#191;_2" d="M29.5 156.5H54.5" stroke="var(--stroke-0, #050412)" stroke-width="2" stroke-linecap="round"/>
+<rect id="&#231;&#159;&#169;&#229;&#189;&#162;_2" x="8.5" y="18.5" width="67" height="127" rx="5" fill="var(--fill-0, white)"/>
+</g>
+<g id=" &#231;&#168;&#191;&#231;&#186;&#184;">
+<path id="&#231;&#159;&#169;&#229;&#189;&#162;_3" fill-rule="evenodd" clip-rule="evenodd" d="M20 39.5C20 38.1193 21.1193 37 22.5 37H61.5C62.8807 37 64 38.1193 64 39.5V103.5C64 104.881 62.8807 106 61.5 106H22.5C21.1193 106 20 104.881 20 103.5L20 39.5Z" fill="var(--fill-0, #F8F8FA)"/>
+<path id="&#231;&#155;&#180;&#231;&#186;&#191; 2" d="M27.5 48H56.5" stroke="var(--stroke-0, #CCD0D9)" stroke-width="2" stroke-linecap="round"/>
+<path id="&#231;&#155;&#180;&#231;&#186;&#191; 2_2" d="M27.5 56H36.5" stroke="var(--stroke-0, #CCD0D9)" stroke-width="2" stroke-linecap="round"/>
+<path id="&#231;&#155;&#180;&#231;&#186;&#191; 2_3" d="M41.5 56H56.5" stroke="var(--stroke-0, #CCD0D9)" stroke-width="2" stroke-linecap="round"/>
+<path id="&#231;&#155;&#180;&#231;&#186;&#191; 2&#229;&#164;&#135;&#228;&#187;&#189;" d="M27.5 64H42.5" stroke="var(--stroke-0, #CCD0D9)" stroke-width="2" stroke-linecap="round"/>
+<path id="&#231;&#155;&#180;&#231;&#186;&#191; 2&#229;&#164;&#135;&#228;&#187;&#189;_2" d="M47.5 64H56.5" stroke="var(--stroke-0, #CCD0D9)" stroke-width="2" stroke-linecap="round"/>
+<path id="&#231;&#155;&#180;&#231;&#186;&#191; 2&#229;&#164;&#135;&#228;&#187;&#189; 2" d="M27.5 72H41.5" stroke="var(--stroke-0, #CCD0D9)" stroke-width="2" stroke-linecap="round"/>
+<path id="&#231;&#155;&#180;&#231;&#186;&#191; 2&#229;&#164;&#135;&#228;&#187;&#189; 3" d="M27.5 80H56.5" stroke="var(--stroke-0, #CCD0D9)" stroke-width="2" stroke-linecap="round"/>
+<path id="&#231;&#155;&#180;&#231;&#186;&#191; 2&#229;&#164;&#135;&#228;&#187;&#189; 4" d="M27.5 88H56.5" stroke="var(--stroke-0, #CCD0D9)" stroke-width="2" stroke-linecap="round"/>
+<path id="&#231;&#155;&#180;&#231;&#186;&#191; 2&#229;&#164;&#135;&#228;&#187;&#189; 5" d="M27.5 96H47.5" stroke="var(--stroke-0, #CCD0D9)" stroke-width="2" stroke-linecap="round"/>
+</g>
+<g id="&#232;&#190;&#185;&#231;&#149;&#140;&#230;&#161;&#134;">
+<path id="&#232;&#183;&#175;&#229;&#190;&#132;" d="M16 43.5V37.5C16 35.2909 17.7909 33.5 20 33.5H26V33.5" stroke="var(--stroke-0, #6484EE)" stroke-width="2"/>
+<path id="&#232;&#183;&#175;&#229;&#190;&#132;_2" d="M68 43V37C68 34.7909 66.2091 33 64 33H58V33" stroke="var(--stroke-0, #6484EE)" stroke-width="2"/>
+<path id="&#232;&#183;&#175;&#229;&#190;&#132;_3" d="M16 100V106C16 108.209 17.7909 110 20 110H26V110" stroke="var(--stroke-0, #6484EE)" stroke-width="2"/>
+<path id="&#232;&#183;&#175;&#229;&#190;&#132;_4" d="M68 99.5V105.5C68 107.709 66.2091 109.5 64 109.5H58V109.5" stroke="var(--stroke-0, #6484EE)" stroke-width="2"/>
+</g>
+<circle id="&#230;&#164;&#173;&#229;&#156;&#134;&#229;&#189;&#162;" cx="41" cy="123" r="8" fill="var(--fill-0, #5478EE)"/>
+</g>
+</svg>

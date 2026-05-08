@@ -1,0 +1,1367 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>学生端审批申请</title>
+    <style>
+      :root {
+        --bg: #f4f6fb;
+        --surface: #ffffff;
+        --surface-soft: #f7f9fc;
+        --line: #e7ebf2;
+        --line-strong: #d7deea;
+        --text: #1f2430;
+        --muted: #667085;
+        --muted-soft: #8a94a6;
+        --primary: #3f6be8;
+        --primary-dark: #3159cb;
+        --primary-soft: #edf3ff;
+        --success: #2f8f45;
+        --success-soft: #effaf1;
+        --warning: #1677ff;
+        --warning-soft: #edf7ff;
+        --danger: #c93535;
+        --danger-soft: #fff1f0;
+        --shadow: 0 12px 34px rgba(31, 36, 48, 0.08);
+        --radius: 8px;
+        --font: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-width: 320px;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--font);
+        font-size: 14px;
+      }
+
+      button,
+      input,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .app-shell {
+        min-height: 100vh;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .topbar {
+        align-items: center;
+        background: var(--surface);
+        box-shadow: 0 1px 4px rgba(31, 36, 48, 0.08);
+        display: flex;
+        gap: 44px;
+        height: 56px;
+        justify-content: space-between;
+        padding: 0 32px;
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
+
+      .brand {
+        align-items: center;
+        display: flex;
+        gap: 12px;
+        min-width: 150px;
+      }
+
+      .brand-mark {
+        background: linear-gradient(180deg, #7593ff 0%, #4d72ea 100%);
+        border-radius: 8px;
+        box-shadow: 0 6px 14px rgba(63, 107, 232, 0.28);
+        height: 32px;
+        position: relative;
+        width: 44px;
+      }
+
+      .brand-mark::after {
+        background: #fff;
+        border-radius: 2px;
+        bottom: 5px;
+        content: "";
+        height: 6px;
+        left: 18px;
+        position: absolute;
+        width: 8px;
+      }
+
+      .brand-name {
+        font-size: 20px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .nav {
+        display: flex;
+        flex: 1;
+        gap: 34px;
+        justify-content: flex-start;
+      }
+
+      .nav a,
+      .nav span {
+        color: var(--text);
+        line-height: 56px;
+        position: relative;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+
+      .nav .active {
+        color: var(--primary);
+        font-weight: 600;
+      }
+
+      .nav .active::after {
+        background: var(--primary);
+        border-radius: 3px;
+        bottom: 0;
+        content: "";
+        height: 4px;
+        left: 50%;
+        position: absolute;
+        transform: translateX(-50%);
+        width: 58px;
+      }
+
+      .user-name {
+        color: #202635;
+        white-space: nowrap;
+      }
+
+      .hero {
+        margin: 0 auto;
+        max-width: 1224px;
+        padding: 42px 24px 28px;
+        position: relative;
+      }
+
+      .hero::before,
+      .hero::after {
+        content: "";
+        pointer-events: none;
+        position: absolute;
+        z-index: 0;
+      }
+
+      .hero::before {
+        background:
+          linear-gradient(135deg, rgba(63, 107, 232, 0.16), rgba(47, 143, 69, 0.08)),
+          radial-gradient(circle at 28px 26px, rgba(63, 107, 232, 0.22) 0 18px, transparent 19px);
+        border: 1px solid rgba(63, 107, 232, 0.16);
+        border-radius: 24px;
+        height: 128px;
+        left: -40px;
+        top: 28px;
+        transform: rotate(-8deg);
+        width: 170px;
+      }
+
+      .hero::after {
+        background:
+          linear-gradient(90deg, transparent 0 18px, rgba(63, 107, 232, 0.15) 18px 22px, transparent 22px 40px),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(63, 107, 232, 0.1));
+        border-radius: 18px;
+        height: 116px;
+        right: -6px;
+        top: 46px;
+        transform: rotate(7deg);
+        width: 210px;
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 1;
+      }
+
+      h1 {
+        font-size: 36px;
+        font-weight: 650;
+        letter-spacing: 0;
+        line-height: 46px;
+        margin: 0;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 24px;
+        margin: 8px 0 0;
+      }
+
+      .content {
+        display: grid;
+        gap: 24px;
+        grid-template-columns: minmax(0, 760px) minmax(320px, 440px);
+        margin: 0 auto 64px;
+        max-width: 1224px;
+        padding: 0 24px;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid rgba(31, 36, 48, 0.06);
+        border-radius: var(--radius);
+        box-shadow: 0 1px 4px rgba(31, 36, 48, 0.06);
+      }
+
+      .panel-card {
+        min-height: 520px;
+        overflow: hidden;
+        padding: 32px;
+        position: relative;
+      }
+
+      .panel-card::before {
+        background: var(--primary);
+        content: "";
+        height: 100%;
+        left: 0;
+        position: absolute;
+        top: 0;
+        width: 4px;
+      }
+
+      .section-title {
+        color: var(--text);
+        font-size: 20px;
+        font-weight: 650;
+        line-height: 28px;
+        margin: 0;
+      }
+
+      .section-note {
+        color: var(--muted);
+        line-height: 22px;
+        margin-top: 8px;
+      }
+
+      .latest-header,
+      .history-header {
+        align-items: flex-start;
+        display: flex;
+        gap: 20px;
+        justify-content: space-between;
+      }
+
+      .status-pill,
+      .record-status {
+        border-radius: 999px;
+        display: inline-flex;
+        font-size: 12px;
+        line-height: 22px;
+        min-width: 56px;
+        padding: 0 10px;
+      }
+
+      .status-processing {
+        background: var(--warning-soft);
+        border: 1px solid #9bd0ff;
+        color: var(--warning);
+      }
+
+      .status-done {
+        background: var(--success-soft);
+        border: 1px solid #b8e8c3;
+        color: var(--success);
+      }
+
+      .status-returned {
+        background: var(--danger-soft);
+        border: 1px solid #ffb4ad;
+        color: var(--danger);
+      }
+
+      .original-info,
+      .detail-info,
+      .side-flow {
+        background: var(--surface-soft);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+      }
+
+      .original-info,
+      .detail-info {
+        margin-top: 24px;
+        padding: 18px;
+      }
+
+      .info-grid {
+        display: grid;
+        gap: 24px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .info-label {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 18px;
+      }
+
+      .info-value {
+        color: var(--text);
+        line-height: 22px;
+        margin-top: 6px;
+      }
+
+      .info-reason-label {
+        margin-top: 16px;
+      }
+
+      .info-reason {
+        color: #475063;
+        line-height: 22px;
+        margin-top: 6px;
+      }
+
+      .timeline {
+        margin-top: 28px;
+      }
+
+      .step {
+        display: grid;
+        grid-template-columns: 24px minmax(0, 1fr);
+        min-height: 74px;
+        position: relative;
+      }
+
+      .step::before {
+        background: var(--line-strong);
+        content: "";
+        height: 100%;
+        left: 8px;
+        position: absolute;
+        top: 18px;
+        width: 1px;
+      }
+
+      .step:last-child::before {
+        display: none;
+      }
+
+      .step-dot {
+        background: #d5dbe6;
+        border: 2px solid #f5f7fb;
+        border-radius: 50%;
+        height: 18px;
+        margin-top: 2px;
+        position: relative;
+        width: 18px;
+        z-index: 1;
+      }
+
+      .step-done .step-dot {
+        background: var(--success);
+        border-color: var(--success-soft);
+      }
+
+      .step-done .step-dot::after {
+        color: #fff;
+        content: "✓";
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        left: 3px;
+        line-height: 14px;
+        position: absolute;
+        top: 0;
+      }
+
+      .step-current .step-dot {
+        background: var(--warning);
+        box-shadow: 0 0 0 4px rgba(22, 119, 255, 0.12);
+      }
+
+      .step-rejected .step-dot {
+        background: var(--danger);
+        border-color: var(--danger-soft);
+      }
+
+      .step-rejected .step-dot::after {
+        color: #fff;
+        content: "!";
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        left: 6px;
+        line-height: 14px;
+        position: absolute;
+        top: 0;
+      }
+
+      .step-title {
+        color: var(--text);
+        line-height: 20px;
+      }
+
+      .step-desc,
+      .step-meta,
+      .step-reason {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 20px;
+        margin-top: 4px;
+      }
+
+      .step-reason {
+        color: #475063;
+      }
+
+      .action-card {
+        padding: 28px 24px;
+      }
+
+      .entry-button,
+      .primary-button,
+      .secondary-button {
+        align-items: center;
+        border-radius: var(--radius);
+        display: inline-flex;
+        height: 36px;
+        justify-content: center;
+        padding: 0 18px;
+      }
+
+      .entry-button,
+      .primary-button {
+        background: var(--primary);
+        border: 1px solid var(--primary);
+        color: #fff;
+      }
+
+      .entry-button {
+        margin-top: 28px;
+      }
+
+      .entry-button:hover,
+      .primary-button:hover {
+        background: var(--primary-dark);
+      }
+
+      .secondary-button {
+        background: #fff;
+        border: 1px solid var(--line-strong);
+        color: var(--text);
+      }
+
+      .side-flow {
+        margin-top: 24px;
+        padding: 16px;
+      }
+
+      .side-flow-title {
+        color: var(--text);
+        line-height: 22px;
+      }
+
+      .side-flow-item {
+        color: var(--muted);
+        line-height: 22px;
+        margin-top: 8px;
+        padding-left: 14px;
+        position: relative;
+      }
+
+      .side-flow-item::before {
+        background: var(--primary);
+        border-radius: 50%;
+        content: "";
+        height: 5px;
+        left: 0;
+        position: absolute;
+        top: 9px;
+        width: 5px;
+      }
+
+      .history-card {
+        grid-column: 1 / -1;
+        padding: 28px 32px 32px;
+      }
+
+      .history-table {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        margin-top: 24px;
+        overflow: hidden;
+      }
+
+      .history-row {
+        align-items: center;
+        border-top: 1px solid var(--line);
+        color: #475063;
+        display: grid;
+        gap: 12px;
+        grid-template-columns: 170px 142px 114px 82px minmax(160px, 1fr) 76px;
+        min-height: 54px;
+        padding: 0 16px;
+      }
+
+      .history-row:first-child {
+        border-top: 0;
+      }
+
+      .history-row:not(.history-head):hover {
+        background: #fafcff;
+      }
+
+      .history-head {
+        background: var(--surface-soft);
+        color: var(--text);
+        font-weight: 650;
+        min-height: 44px;
+      }
+
+      .text-button {
+        background: transparent;
+        border: 0;
+        color: var(--primary);
+        padding: 0;
+      }
+
+      .history-empty {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        color: var(--muted);
+        line-height: 72px;
+        margin-top: 24px;
+        text-align: center;
+      }
+
+      .empty-panel {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+      }
+
+      .empty-state {
+        margin: 0 auto;
+        max-width: 360px;
+        text-align: center;
+      }
+
+      .empty-icon {
+        background: var(--primary-soft);
+        border: 1px solid #b8ccff;
+        border-radius: var(--radius);
+        height: 58px;
+        margin: 0 auto 18px;
+        position: relative;
+        width: 58px;
+      }
+
+      .empty-icon::before {
+        border: 2px solid var(--primary);
+        border-radius: 4px;
+        content: "";
+        height: 26px;
+        left: 15px;
+        position: absolute;
+        top: 14px;
+        width: 24px;
+      }
+
+      .empty-icon::after {
+        background: var(--primary);
+        border-radius: 1px;
+        content: "";
+        height: 2px;
+        left: 22px;
+        position: absolute;
+        top: 25px;
+        width: 14px;
+      }
+
+      .modal-overlay {
+        align-items: center;
+        background: rgba(16, 24, 40, 0.58);
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        left: 0;
+        padding: 24px;
+        position: fixed;
+        right: 0;
+        top: 0;
+        z-index: 10;
+      }
+
+      .modal {
+        background: var(--surface);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        max-height: calc(100vh - 48px);
+        overflow: auto;
+        padding: 32px;
+        position: relative;
+        width: min(640px, 100%);
+      }
+
+      .detail-modal {
+        width: min(720px, 100%);
+      }
+
+      .modal-close {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        color: var(--muted);
+        display: flex;
+        font-size: 24px;
+        height: 32px;
+        justify-content: center;
+        line-height: 32px;
+        position: absolute;
+        right: 18px;
+        top: 18px;
+        width: 32px;
+      }
+
+      .modal-close:hover {
+        color: var(--text);
+      }
+
+      .modal-form {
+        display: grid;
+        gap: 20px;
+        margin-top: 28px;
+      }
+
+      .field-label {
+        color: #475063;
+        display: block;
+        line-height: 20px;
+        margin-bottom: 8px;
+      }
+
+      .input,
+      .textarea {
+        background: #fff;
+        border: 1px solid var(--line-strong);
+        border-radius: 6px;
+        color: var(--text);
+        outline: none;
+        width: 100%;
+      }
+
+      .input {
+        height: 36px;
+        line-height: 36px;
+        padding: 0 12px;
+      }
+
+      .textarea {
+        height: 150px;
+        line-height: 22px;
+        padding: 10px 12px;
+        resize: vertical;
+      }
+
+      .input:focus,
+      .textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(63, 107, 232, 0.13);
+      }
+
+      .input.is-error,
+      .textarea.is-error {
+        border-color: var(--danger);
+        box-shadow: 0 0 0 3px rgba(201, 53, 53, 0.12);
+      }
+
+      .field-error {
+        color: var(--danger);
+        font-size: 12px;
+        line-height: 18px;
+        margin-top: 6px;
+        min-height: 18px;
+      }
+
+      .modal-actions {
+        align-items: center;
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 28px;
+      }
+
+      .toast {
+        background: var(--success-soft);
+        border: 1px solid #b8e8c3;
+        border-radius: var(--radius);
+        box-shadow: 0 8px 24px rgba(31, 36, 48, 0.12);
+        color: #216e35;
+        left: 50%;
+        line-height: 22px;
+        padding: 10px 18px;
+        position: fixed;
+        top: 72px;
+        transform: translateX(-50%);
+        z-index: 20;
+      }
+
+      .is-hidden {
+        display: none;
+      }
+
+      @media (max-width: 980px) {
+        .topbar {
+          align-items: flex-start;
+          flex-wrap: wrap;
+          gap: 8px 20px;
+          height: auto;
+          padding: 12px 20px 0;
+        }
+
+        .brand,
+        .user-name {
+          height: 36px;
+        }
+
+        .nav {
+          flex-basis: 100%;
+          gap: 24px;
+          overflow-x: auto;
+        }
+
+        .nav a,
+        .nav span {
+          line-height: 44px;
+        }
+
+        .hero {
+          padding-top: 32px;
+        }
+
+        .hero::before,
+        .hero::after {
+          opacity: 0.45;
+        }
+
+        .content {
+          grid-template-columns: 1fr;
+        }
+
+        .history-card {
+          overflow-x: auto;
+        }
+
+        .history-table {
+          min-width: 900px;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .topbar {
+          padding-inline: 16px;
+        }
+
+        .brand-name {
+          font-size: 18px;
+        }
+
+        .user-name {
+          display: none;
+        }
+
+        .hero {
+          padding: 28px 16px 22px;
+        }
+
+        h1 {
+          font-size: 30px;
+          line-height: 38px;
+        }
+
+        .subtitle {
+          font-size: 14px;
+        }
+
+        .content {
+          padding-inline: 16px;
+        }
+
+        .panel-card,
+        .action-card,
+        .history-card,
+        .modal {
+          padding: 24px 18px;
+        }
+
+        .latest-header,
+        .history-header,
+        .info-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .latest-header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .modal-actions {
+          flex-direction: column-reverse;
+        }
+
+        .modal-actions button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand" aria-label="图灵智测">
+          <div class="brand-mark" aria-hidden="true"></div>
+          <div class="brand-name">图灵智测</div>
+        </div>
+        <nav class="nav" aria-label="主导航">
+          <a href="#">培养流程</a>
+          <span>论文检测</span>
+          <span>个人中心</span>
+          <span class="active">审批申请</span>
+        </nav>
+        <div class="user-name">林星河</div>
+      </header>
+
+      <section class="hero">
+        <div class="hero-content">
+          <h1>审批申请</h1>
+          <p class="subtitle">独立于培养阶段材料提交，用于发起和跟进专项审批流程</p>
+        </div>
+      </section>
+
+      <div class="toast is-hidden" id="success-toast" role="status">审批申请提交成功</div>
+
+      <main class="content">
+        <section class="card panel-card" id="latest-panel">
+          <div class="latest-header">
+            <div>
+              <h2 class="section-title">最新申请进度</h2>
+              <div class="section-note">查看最近一次申请的审批状态</div>
+            </div>
+            <div class="status-pill status-processing" id="latest-status">研究生部审核中</div>
+          </div>
+
+          <div class="original-info">
+            <div class="info-grid">
+              <div>
+                <div class="info-label">申请主题</div>
+                <div class="info-value" id="latest-subject">培养计划调整申请</div>
+              </div>
+              <div>
+                <div class="info-label">提交时间</div>
+                <div class="info-value" id="latest-time">2026-04-28 14:20</div>
+              </div>
+            </div>
+            <div class="info-label info-reason-label">申请理由</div>
+            <div class="info-reason" id="latest-reason">因研究方向调整，需要将培养计划中的阶段安排同步更新，确保后续培养记录与实际安排一致。</div>
+          </div>
+
+          <div class="timeline" aria-label="最新申请审批流程">
+            <div class="step step-done" id="latest-student-step">
+              <div class="step-dot"></div>
+              <div>
+                <div class="step-title">学生提交</div>
+                <div class="step-desc" id="latest-student-result">已提交</div>
+                <div class="step-meta" id="latest-student-meta">处理人：林星河　处理时间：2026-04-28 14:20</div>
+              </div>
+            </div>
+            <div class="step step-done" id="latest-advisor-step">
+              <div class="step-dot"></div>
+              <div>
+                <div class="step-title">导师审核</div>
+                <div class="step-desc" id="latest-advisor-result">已同意</div>
+                <div class="step-meta" id="latest-advisor-meta">处理人：张建国　处理时间：2026-04-28 17:42</div>
+              </div>
+            </div>
+            <div class="step step-done" id="latest-leader-step">
+              <div class="step-dot"></div>
+              <div>
+                <div class="step-title">培养小组组长审核</div>
+                <div class="step-desc" id="latest-leader-result">已同意</div>
+                <div class="step-meta" id="latest-leader-meta">处理人：刘镇宇　处理时间：2026-04-29 09:10</div>
+              </div>
+            </div>
+            <div class="step step-current" id="latest-dept-step">
+              <div class="step-dot"></div>
+              <div>
+                <div class="step-title">研究生部审核</div>
+                <div class="step-desc" id="latest-dept-result">审核中</div>
+                <div class="step-meta" id="latest-dept-meta">处理人：待定　处理时间：待定</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card panel-card empty-panel is-hidden" id="empty-panel">
+          <div class="empty-state">
+            <div class="empty-icon" aria-hidden="true"></div>
+            <h2 class="section-title">暂无审批申请</h2>
+            <div class="section-note">当前还没有审批申请记录。发起申请后，最新进度会展示在这里。</div>
+            <button class="entry-button" type="button" data-open-modal="apply-modal">发起审批申请</button>
+          </div>
+        </section>
+
+        <aside class="card action-card">
+          <h2 class="section-title">发起审批申请</h2>
+          <div class="section-note">需要新增申请时，从这里打开申请弹窗。</div>
+          <button class="entry-button" type="button" data-open-modal="apply-modal">发起审批申请</button>
+          <div class="side-flow">
+            <div class="side-flow-title">审批流程</div>
+            <div class="side-flow-item">学生提交</div>
+            <div class="side-flow-item">导师审核</div>
+            <div class="side-flow-item">培养小组组长审核</div>
+            <div class="side-flow-item">研究生部审核通过后完成</div>
+          </div>
+        </aside>
+
+        <section class="card history-card">
+          <div class="history-header">
+            <div>
+              <h2 class="section-title">审批申请列表</h2>
+              <div class="section-note">查看以往提交的审批申请、当前节点和处理结果。</div>
+            </div>
+          </div>
+
+          <div class="history-table" id="history-table">
+            <div class="history-row history-head">
+              <div>申请主题</div>
+              <div>提交时间</div>
+              <div>当前节点</div>
+              <div>状态</div>
+              <div>处理说明</div>
+              <div>操作</div>
+            </div>
+          </div>
+          <div class="history-empty is-hidden" id="history-empty">暂无审批申请记录</div>
+        </section>
+      </main>
+
+      <div class="modal-overlay is-hidden" id="apply-modal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="apply-title">
+          <button class="modal-close" type="button" aria-label="关闭" data-close-modal>×</button>
+          <h2 class="section-title" id="apply-title">发起审批申请</h2>
+          <div class="section-note">填写申请主题和申请理由后提交审批。</div>
+
+          <div class="modal-form">
+            <div>
+              <label class="field-label" for="modal-subject">申请主题</label>
+              <input class="input" id="modal-subject" placeholder="请输入申请主题" aria-describedby="subject-error" />
+              <div class="field-error" id="subject-error"></div>
+            </div>
+            <div>
+              <label class="field-label" for="modal-reason">申请理由</label>
+              <textarea class="textarea" id="modal-reason" placeholder="请填写本次提交审批的原因和背景" aria-describedby="reason-error"></textarea>
+              <div class="field-error" id="reason-error"></div>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button class="secondary-button" type="button" data-close-modal>取消</button>
+            <button class="primary-button" type="button" id="submit-application">提交审批</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-overlay is-hidden" id="detail-modal" aria-hidden="true">
+        <div class="modal detail-modal" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+          <button class="modal-close" type="button" aria-label="关闭" data-close-modal>×</button>
+          <h2 class="section-title" id="detail-title">审批申请详情</h2>
+          <div class="section-note">查看原申请信息和审批流程节点。</div>
+
+          <div class="detail-info">
+            <div class="info-grid">
+              <div>
+                <div class="info-label">申请主题</div>
+                <div class="info-value" id="detail-subject">培养计划调整申请</div>
+              </div>
+              <div>
+                <div class="info-label">提交时间</div>
+                <div class="info-value" id="detail-time">2026-04-28 14:20</div>
+              </div>
+            </div>
+            <div class="info-label info-reason-label">申请理由</div>
+            <div class="info-reason" id="detail-reason">因研究方向调整，需要将培养计划中的阶段安排同步更新，确保后续培养记录与实际安排一致。</div>
+          </div>
+
+          <div class="timeline" aria-label="审批申请详情流程">
+            <div class="step step-done">
+              <div class="step-dot"></div>
+              <div>
+                <div class="step-title">学生提交</div>
+                <div class="step-desc" id="detail-student-result">已提交</div>
+                <div class="step-meta" id="detail-student-meta">处理人：林星河　处理时间：2026-04-28 14:20</div>
+                <div class="step-reason" id="detail-student-reason">申请理由：因研究方向调整，需要将培养计划中的阶段安排同步更新。</div>
+              </div>
+            </div>
+            <div class="step step-done" id="detail-advisor-step">
+              <div class="step-dot"></div>
+              <div>
+                <div class="step-title">导师审核</div>
+                <div class="step-desc" id="detail-advisor-result">已同意</div>
+                <div class="step-meta" id="detail-advisor-meta">处理人：张建国　处理时间：2026-04-28 17:42</div>
+                <div class="step-reason" id="detail-advisor-reason">意见：同意调整，请继续提交培养小组组长审核。</div>
+              </div>
+            </div>
+            <div class="step step-done" id="detail-leader-step">
+              <div class="step-dot"></div>
+              <div>
+                <div class="step-title">培养小组组长审核</div>
+                <div class="step-desc" id="detail-leader-result">已同意</div>
+                <div class="step-meta" id="detail-leader-meta">处理人：刘镇宇　处理时间：2026-04-29 09:10</div>
+                <div class="step-reason" id="detail-leader-reason">意见：申请内容属实，同意提交研究生部审核。</div>
+              </div>
+            </div>
+            <div class="step step-current" id="detail-dept-step">
+              <div class="step-dot"></div>
+              <div>
+                <div class="step-title">研究生部审核</div>
+                <div class="step-desc" id="detail-dept-result">研究生部同意后申请完成</div>
+                <div class="step-meta" id="detail-dept-meta">处理人：待定　处理时间：待定</div>
+                <div class="step-reason" id="detail-dept-reason"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const closeButtons = document.querySelectorAll("[data-close-modal]");
+      const overlays = document.querySelectorAll(".modal-overlay");
+      const submitButton = document.getElementById("submit-application");
+      const latestPanel = document.getElementById("latest-panel");
+      const emptyPanel = document.getElementById("empty-panel");
+      const latestStatus = document.getElementById("latest-status");
+      const historyTable = document.getElementById("history-table");
+      const historyEmpty = document.getElementById("history-empty");
+      const subjectInput = document.getElementById("modal-subject");
+      const reasonInput = document.getElementById("modal-reason");
+      const subjectError = document.getElementById("subject-error");
+      const reasonError = document.getElementById("reason-error");
+      const successToast = document.getElementById("success-toast");
+
+      const applications = {
+        processing: {
+          subject: "培养计划调整申请",
+          time: "2026-04-28 14:20",
+          reason: "因研究方向调整，需要将培养计划中的阶段安排同步更新，确保后续培养记录与实际安排一致。",
+          currentNode: "研究生部审核",
+          status: "审核中",
+          statusClass: "status-processing",
+          opinion: "组长已同意，等待研究生部审核",
+          latestStatus: "研究生部审核中",
+          detailState: "processing",
+          steps: [
+            { id: "latest-student", className: "step-done", result: "已提交", meta: "处理人：林星河　处理时间：2026-04-28 14:20" },
+            { id: "latest-advisor", className: "step-done", result: "已同意", meta: "处理人：张建国　处理时间：2026-04-28 17:42" },
+            { id: "latest-leader", className: "step-done", result: "已同意", meta: "处理人：刘镇宇　处理时间：2026-04-29 09:10" },
+            { id: "latest-dept", className: "step-current", result: "审核中", meta: "处理人：待定　处理时间：待定" },
+          ],
+        },
+        approved: {
+          subject: "导师信息变更申请",
+          time: "2026-04-12 09:36",
+          reason: "因课题方向调整，需要同步变更导师信息。",
+          currentNode: "已完成",
+          status: "已通过",
+          statusClass: "status-done",
+          opinion: "研究生部已同意，申请完成",
+          latestStatus: "已通过",
+          detailState: "done",
+          steps: [
+            { id: "latest-student", className: "step-done", result: "已提交", meta: "处理人：林星河　处理时间：2026-04-12 09:36" },
+            { id: "latest-advisor", className: "step-done", result: "已同意", meta: "处理人：张建国　处理时间：2026-04-12 13:30" },
+            { id: "latest-leader", className: "step-done", result: "已同意", meta: "处理人：刘镇宇　处理时间：2026-04-12 15:20" },
+            { id: "latest-dept", className: "step-done", result: "已同意", meta: "处理人：研究生部　处理时间：2026-04-13 10:05" },
+          ],
+        },
+        rejected: {
+          subject: "培养小组调整申请",
+          time: "2026-03-21 16:05",
+          reason: "因研究方向变化，申请调整培养小组。",
+          currentNode: "导师审核",
+          status: "不通过",
+          statusClass: "status-returned",
+          opinion: "请补充调整原因及相关证明材料",
+          latestStatus: "不通过",
+          detailState: "rejected",
+          steps: [
+            { id: "latest-student", className: "step-done", result: "已提交", meta: "处理人：林星河　处理时间：2026-03-21 16:05" },
+            { id: "latest-advisor", className: "step-rejected", result: "不通过", meta: "处理人：张建国　处理时间：2026-03-21 18:12" },
+            { id: "latest-leader", className: "step-pending", result: "未开始", meta: "处理人：未开始　处理时间：未开始" },
+            { id: "latest-dept", className: "step-pending", result: "未开始", meta: "处理人：未开始　处理时间：未开始" },
+          ],
+        },
+      };
+
+      let currentApplications = [applications.processing, applications.approved, applications.rejected];
+
+      function openModal(id) {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+        modal.classList.remove("is-hidden");
+        modal.setAttribute("aria-hidden", "false");
+      }
+
+      function closeModal(modal) {
+        if (!modal) return;
+        modal.classList.add("is-hidden");
+        modal.setAttribute("aria-hidden", "true");
+      }
+
+      function setLatestStep(id, statusClass, result, meta) {
+        const step = document.getElementById(`${id}-step`);
+        const resultNode = document.getElementById(`${id}-result`);
+        const metaNode = document.getElementById(`${id}-meta`);
+        if (!step || !resultNode || !metaNode) return;
+        step.classList.remove("step-done", "step-current", "step-pending", "step-rejected");
+        step.classList.add(statusClass);
+        resultNode.textContent = result;
+        metaNode.textContent = meta;
+      }
+
+      function setDetailStep(id, statusClass, result, meta, note) {
+        const step = document.getElementById(`${id}-step`);
+        const resultNode = document.getElementById(`${id}-result`);
+        const metaNode = document.getElementById(`${id}-meta`);
+        const noteNode = document.getElementById(`${id}-reason`);
+        if (!step || !resultNode || !metaNode || !noteNode) return;
+        step.classList.remove("step-done", "step-current", "step-pending", "step-rejected");
+        step.classList.add(statusClass);
+        resultNode.textContent = result;
+        metaNode.textContent = meta;
+        noteNode.textContent = note || "";
+      }
+
+      function resetFormErrors() {
+        subjectInput.classList.remove("is-error");
+        reasonInput.classList.remove("is-error");
+        subjectError.textContent = "";
+        reasonError.textContent = "";
+      }
+
+      function validateApplyForm() {
+        resetFormErrors();
+        let isValid = true;
+        if (!subjectInput.value.trim()) {
+          subjectInput.classList.add("is-error");
+          subjectError.textContent = "请输入申请主题";
+          isValid = false;
+        }
+        if (!reasonInput.value.trim()) {
+          reasonInput.classList.add("is-error");
+          reasonError.textContent = "请输入申请理由";
+          isValid = false;
+        }
+        if (!isValid) document.querySelector(".is-error")?.focus();
+        return isValid;
+      }
+
+      function showSuccessToast() {
+        successToast.classList.remove("is-hidden");
+        window.clearTimeout(showSuccessToast.timer);
+        showSuccessToast.timer = window.setTimeout(() => {
+          successToast.classList.add("is-hidden");
+        }, 1800);
+      }
+
+      function escapeHtml(value) {
+        const wrapper = document.createElement("div");
+        wrapper.textContent = value;
+        return wrapper.innerHTML;
+      }
+
+      function escapeAttr(value) {
+        return String(value).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      }
+
+      function renderHistory(list) {
+        historyTable.querySelectorAll(".history-row:not(.history-head)").forEach((row) => row.remove());
+        if (!list.length) {
+          historyTable.classList.add("is-hidden");
+          historyEmpty.classList.remove("is-hidden");
+          return;
+        }
+        historyTable.classList.remove("is-hidden");
+        historyEmpty.classList.add("is-hidden");
+        list.forEach((item) => {
+          const row = document.createElement("div");
+          row.className = "history-row";
+          row.innerHTML = `
+            <div>${escapeHtml(item.subject)}</div>
+            <div>${escapeHtml(item.time)}</div>
+            <div>${escapeHtml(item.currentNode)}</div>
+            <div><span class="record-status ${item.statusClass}">${escapeHtml(item.status)}</span></div>
+            <div>${escapeHtml(item.opinion)}</div>
+            <div>
+              <button
+                class="text-button"
+                type="button"
+                data-open-modal="detail-modal"
+                data-detail-state="${item.detailState}"
+                data-current-node="${escapeAttr(item.currentNode)}"
+                data-subject="${escapeAttr(item.subject)}"
+                data-time="${escapeAttr(item.time)}"
+                data-reason="${escapeAttr(item.reason)}"
+              >查看详情</button>
+            </div>
+          `;
+          historyTable.appendChild(row);
+        });
+      }
+
+      function renderLatest(item) {
+        document.getElementById("latest-subject").textContent = item.subject;
+        document.getElementById("latest-time").textContent = item.time;
+        document.getElementById("latest-reason").textContent = item.reason;
+        latestStatus.textContent = item.latestStatus;
+        latestStatus.className = `status-pill ${item.statusClass}`;
+        item.steps.forEach((step) => setLatestStep(step.id, step.className, step.result, step.meta));
+      }
+
+      function renderPage(list) {
+        currentApplications = list;
+        if (!list.length) {
+          latestPanel.classList.add("is-hidden");
+          emptyPanel.classList.remove("is-hidden");
+          renderHistory([]);
+          return;
+        }
+        emptyPanel.classList.add("is-hidden");
+        latestPanel.classList.remove("is-hidden");
+        renderLatest(list[0]);
+        renderHistory(list);
+      }
+
+      function updateDetail(button) {
+        const state = button.dataset.detailState;
+        const currentNode = button.dataset.currentNode || "";
+        const subject = button.dataset.subject || "审批申请";
+        const time = button.dataset.time || "-";
+        const reason = button.dataset.reason || "";
+
+        document.getElementById("detail-subject").textContent = subject;
+        document.getElementById("detail-time").textContent = time;
+        document.getElementById("detail-reason").textContent = reason;
+        document.getElementById("detail-student-meta").textContent = `处理人：林星河　处理时间：${time}`;
+        document.getElementById("detail-student-reason").textContent = `申请理由：${reason}`;
+
+        if (state === "done") {
+          setDetailStep("detail-advisor", "step-done", "已同意", "处理人：张建国　处理时间：2026-04-12 13:30", "意见：同意变更。");
+          setDetailStep("detail-leader", "step-done", "已同意", "处理人：刘镇宇　处理时间：2026-04-12 15:20", "意见：申请内容属实，同意提交研究生部审核。");
+          setDetailStep("detail-dept", "step-done", "已同意", "处理人：研究生部　处理时间：2026-04-13 10:05", "意见：研究生部已同意，申请完成。");
+          return;
+        }
+
+        if (state === "rejected") {
+          setDetailStep("detail-advisor", "step-rejected", "不通过", "处理人：张建国　处理时间：2026-03-21 18:12", "原因：请补充调整原因及相关证明材料。");
+          setDetailStep("detail-leader", "step-pending", "未开始", "处理人：未开始　处理时间：未开始", "");
+          setDetailStep("detail-dept", "step-pending", "未开始", "处理人：未开始　处理时间：未开始", "");
+          return;
+        }
+
+        if (currentNode === "导师审核") {
+          setDetailStep("detail-advisor", "step-current", "审核中", "处理人：待定　处理时间：待定", "");
+          setDetailStep("detail-leader", "step-pending", "未开始", "处理人：待定　处理时间：待定", "");
+          setDetailStep("detail-dept", "step-pending", "未开始", "处理人：待定　处理时间：待定", "");
+          return;
+        }
+
+        setDetailStep("detail-advisor", "step-done", "已同意", "处理人：张建国　处理时间：2026-04-28 17:42", "意见：同意调整，请继续提交培养小组组长审核。");
+        setDetailStep("detail-leader", "step-done", "已同意", "处理人：刘镇宇　处理时间：2026-04-29 09:10", "意见：申请内容属实，同意提交研究生部审核。");
+        setDetailStep("detail-dept", "step-current", "审核中", "处理人：待定　处理时间：待定", "");
+      }
+
+      document.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-open-modal]");
+        if (!button) return;
+        if (button.dataset.openModal === "detail-modal") updateDetail(button);
+        if (button.dataset.openModal === "apply-modal") resetFormErrors();
+        openModal(button.dataset.openModal);
+      });
+
+      closeButtons.forEach((button) => {
+        button.addEventListener("click", () => closeModal(button.closest(".modal-overlay")));
+      });
+
+      overlays.forEach((overlay) => {
+        overlay.addEventListener("click", (event) => {
+          if (event.target === overlay) closeModal(overlay);
+        });
+      });
+
+      subjectInput.addEventListener("input", resetFormErrors);
+      reasonInput.addEventListener("input", resetFormErrors);
+
+      submitButton.addEventListener("click", () => {
+        if (!validateApplyForm()) return;
+        const subject = subjectInput.value.trim();
+        const reason = reasonInput.value.trim();
+        const now = new Date().toLocaleString("zh-CN", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        }).replace(/\//g, "-");
+        const newApplication = {
+          subject,
+          time: now,
+          reason,
+          currentNode: "导师审核",
+          status: "审核中",
+          statusClass: "status-processing",
+          opinion: "已提交，等待导师审核",
+          latestStatus: "导师审核中",
+          detailState: "processing",
+          steps: [
+            { id: "latest-student", className: "step-done", result: "已提交", meta: `处理人：林星河　处理时间：${now}` },
+            { id: "latest-advisor", className: "step-current", result: "审核中", meta: "处理人：待定　处理时间：待定" },
+            { id: "latest-leader", className: "step-pending", result: "未开始", meta: "处理人：待定　处理时间：待定" },
+            { id: "latest-dept", className: "step-pending", result: "未开始", meta: "处理人：待定　处理时间：待定" },
+          ],
+        };
+        renderPage([newApplication, ...currentApplications]);
+        subjectInput.value = "";
+        reasonInput.value = "";
+        closeModal(document.getElementById("apply-modal"));
+        showSuccessToast();
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          overlays.forEach((overlay) => {
+            if (!overlay.classList.contains("is-hidden")) closeModal(overlay);
+          });
+        }
+      });
+
+      const previewState = new URLSearchParams(window.location.search).get("state");
+      if (previewState === "approved") {
+        renderPage([applications.approved, applications.processing, applications.rejected]);
+      } else if (previewState === "rejected") {
+        renderPage([applications.rejected, applications.processing, applications.approved]);
+      } else if (previewState === "empty") {
+        renderPage([]);
+      } else {
+        renderPage(currentApplications);
+      }
+    </script>
+  </body>
+</html>
