@@ -870,8 +870,8 @@ body.is-modal-open {
   align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
-  min-height: 120px;
-  padding: 28px 32px;
+  min-height: 92px;
+  padding: 22px 32px 18px;
   border-bottom: 1px solid rgba(15, 23, 42, 0.08);
   background:
     linear-gradient(135deg, rgba(84, 120, 238, 0.1), rgba(84, 120, 238, 0.02) 52%),
@@ -881,16 +881,16 @@ body.is-modal-open {
 .guide-modal-heading h2 {
   margin: 0;
   color: #111827;
-  font-size: 28px;
-  line-height: 36px;
+  font-size: 24px;
+  line-height: 32px;
   font-weight: 600;
 }
 
 .guide-modal-subtitle {
   margin: 6px 0 0;
   color: #667085;
-  font-size: 14px;
-  line-height: 22px;
+  font-size: 13px;
+  line-height: 20px;
   max-width: 861px;
 }
 
@@ -4933,13 +4933,13 @@ body.is-modal-open {
 
   .guide-modal-header {
     gap: 16px;
-    padding-top: 20px;
-    padding-bottom: 18px;
+    padding-top: 16px;
+    padding-bottom: 14px;
   }
 
   .guide-modal-heading h2 {
-    font-size: 22px;
-    line-height: 30px;
+    font-size: 20px;
+    line-height: 28px;
   }
 
   .guide-modal-exam {
