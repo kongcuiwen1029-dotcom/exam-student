@@ -3265,8 +3265,8 @@ body.is-modal-open {
 
 .guide-step3-preview-frame {
   position: relative;
-  height: 302px;
-  min-height: 302px;
+  height: 318px;
+  min-height: 318px;
   margin-top: 11px;
   border-radius: 18px;
   overflow: hidden;
@@ -3288,11 +3288,11 @@ body.is-modal-open {
 }
 
 .guide-step3-preview-upload .guide-step2-qr-shell {
-  top: 80px;
+  top: 96px;
 }
 
 .guide-step3-preview-upload .guide-step2-arrow {
-  top: 148px;
+  top: 164px;
 }
 
 .guide-step3-live-probe {
