@@ -683,6 +683,45 @@
       transform: translate(-50%, -50%) scale(0.8);
     }
 
+    .pause-overlay {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      border: none;
+      background: rgba(12, 18, 32, 0.16);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.24s ease;
+      z-index: 13;
+    }
+
+    .pause-overlay.is-visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .pause-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 999px;
+      display: grid;
+      grid-template-columns: 8px 8px;
+      justify-content: center;
+      align-content: center;
+      gap: 8px;
+      background: rgba(18, 24, 38, 0.88);
+      box-shadow: 0 18px 38px rgba(10, 18, 34, 0.24);
+    }
+
+    .pause-icon::before,
+    .pause-icon::after {
+      content: "";
+      height: 24px;
+      border-radius: 999px;
+      background: #ffffff;
+    }
+
     @media (max-width: 920px) {
       body {
         padding: 14px;
@@ -831,6 +870,9 @@
         <div class="prompt-text" id="promptText">1.请选择自己熟悉的编程语言进行作答。</div>
       </div>
       <div class="mouse" id="mouse"></div>
+      <button class="pause-overlay" id="pauseOverlay" type="button" aria-label="继续播放">
+        <span class="pause-icon" aria-hidden="true"></span>
+      </button>
     </div>
   </div>
 
@@ -838,6 +880,7 @@
     const stage = document.getElementById("stage");
     const focusBox = document.getElementById("focusBox");
     const mouse = document.getElementById("mouse");
+    const pauseOverlay = document.getElementById("pauseOverlay");
     const promptText = document.getElementById("promptText");
     const langWrap = document.getElementById("langWrap");
     const editableText = document.getElementById("editableText");
@@ -860,7 +903,9 @@
 
     const TOTAL_STEPS = 8;
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const STEP_END_DELAY = 1000;
     const sampleCode = "return a + b;";
+    let resumePlayback = null;
 
     function clearStates() {
       langWrap.classList.remove("is-open");
@@ -960,12 +1005,40 @@
       mouse.classList.remove("is-visible", "is-clicking");
     }
 
+    function resumeFromPause() {
+      if (!resumePlayback) {
+        return;
+      }
+
+      const resume = resumePlayback;
+      resumePlayback = null;
+      pauseOverlay.classList.remove("is-visible");
+      resume();
+    }
+
+    function waitForManualResume() {
+      pauseOverlay.classList.add("is-visible");
+      return new Promise((resolve) => {
+        resumePlayback = resolve;
+      });
+    }
+
+    pauseOverlay.addEventListener("click", resumeFromPause);
+
+    window.addEventListener("keydown", (event) => {
+      if ((event.key === "Enter" || event.key === " ") && resumePlayback) {
+        event.preventDefault();
+        resumeFromPause();
+      }
+    });
+
     async function clickMouse(target, offsetX = 0, offsetY = 0) {
       showMouse(target, offsetX, offsetY);
       await sleep(260);
       mouse.classList.add("is-clicking");
       await sleep(160);
       mouse.classList.remove("is-clicking");
+      await waitForManualResume();
     }
 
     async function typeCode(text) {
@@ -1089,13 +1162,21 @@
         clearStates();
         await sleep(500);
         await playStep1();
+        await sleep(STEP_END_DELAY);
         await playStep2();
+        await sleep(STEP_END_DELAY);
         await playStep3();
+        await sleep(STEP_END_DELAY);
         await playStep4();
+        await sleep(STEP_END_DELAY);
         await playStep5();
+        await sleep(STEP_END_DELAY);
         await playStep6();
+        await sleep(STEP_END_DELAY);
         await playStep7();
+        await sleep(STEP_END_DELAY);
         await playStep8();
+        await sleep(STEP_END_DELAY);
         hideFocus();
         hideMouse();
         await sleep(250);

@@ -1213,6 +1213,8 @@ body.is-modal-open {
   transform: translate(-50%, -50%) scale(1);
   transform-origin: center;
   will-change: transform;
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 .guide-step5-demo-canvas {
@@ -1851,6 +1853,39 @@ body.is-modal-open {
 
 .guide-step5-mouse.is-clicking {
   transform: translate(-50%, -50%) scale(0.8);
+}
+
+.guide-step5-pause-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 13;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 23, 42, 0.12);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.guide-step5-demo-frame.is-paused .guide-step5-pause-overlay {
+  opacity: 1;
+}
+
+.guide-step5-pause-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 28px;
+  height: 28px;
+}
+
+.guide-step5-pause-icon span {
+  width: 6px;
+  height: 22px;
+  border-radius: 6px;
+  background: #4f6cff;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.18);
 }
 
 .guide-step4-demo-stage {

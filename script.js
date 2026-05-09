@@ -612,6 +612,7 @@ const guideState = {
   codingDemoJobs: new Set(),
   codingDemoToken: 0,
   codingDemoResizeObserver: null,
+  codingDemoPaused: false,
   cameraStream: null,
   cameraRequestToken: 0,
   mobileRelayExamId: "",
@@ -953,6 +954,7 @@ function clearCodingDemoJobs() {
     job.resolve(false);
   });
   guideState.codingDemoJobs.clear();
+  guideState.codingDemoPaused = false;
 
   if (guideState.codingDemoResizeObserver) {
     guideState.codingDemoResizeObserver.disconnect();
@@ -1133,19 +1135,66 @@ function waitForCodingDemo(token, delay) {
     const job = {
       timeoutId: 0,
       resolve,
+      remaining: delay,
+      startedAt: 0,
     };
 
-    job.timeoutId = window.setTimeout(() => {
-      guideState.codingDemoJobs.delete(job);
-      resolve(isCodingDemoCurrent(token));
-    }, delay);
+    job.start = () => {
+      if (guideState.codingDemoPaused) {
+        return;
+      }
+
+      job.startedAt = Date.now();
+      job.timeoutId = window.setTimeout(() => {
+        guideState.codingDemoJobs.delete(job);
+        resolve(isCodingDemoCurrent(token));
+      }, Math.max(0, job.remaining));
+    };
 
     guideState.codingDemoJobs.add(job);
+    job.start();
   });
 }
 
 function isCodingDemoCurrent(token) {
   return guideState.isOpen && token === guideState.codingDemoToken && getCurrentGuideStep()?.id === "coding-question";
+}
+
+function setCodingDemoPausedState(frame, paused) {
+  if (frame) {
+    frame.classList.toggle("is-paused", paused);
+  }
+
+  guideState.codingDemoPaused = paused;
+}
+
+function pauseCodingDemo(frame) {
+  if (guideState.codingDemoPaused) {
+    return;
+  }
+
+  guideState.codingDemoJobs.forEach((job) => {
+    window.clearTimeout(job.timeoutId);
+    job.timeoutId = 0;
+
+    if (job.startedAt) {
+      const elapsed = Date.now() - job.startedAt;
+      job.remaining = Math.max(0, job.remaining - elapsed);
+    }
+  });
+
+  setCodingDemoPausedState(frame, true);
+}
+
+function resumeCodingDemo(frame) {
+  if (!guideState.codingDemoPaused) {
+    return;
+  }
+
+  setCodingDemoPausedState(frame, false);
+  guideState.codingDemoJobs.forEach((job) => {
+    job.start?.();
+  });
 }
 
 function getSortingDemoElements() {
@@ -1588,6 +1637,7 @@ function startCodingQuestionDemo() {
   }
 
   function clearStates() {
+    setCodingDemoPausedState(frame, false);
     langWrap.classList.remove("is-open");
     canvas.classList.remove("is-fullscreen");
     editableText.textContent = "";
@@ -1608,6 +1658,25 @@ function startCodingQuestionDemo() {
     typingCursor.style.opacity = "1";
     hideFocus();
     hideMouse();
+  }
+
+  function toggleCodingDemoPlayback() {
+    if (guideState.codingDemoPaused) {
+      resumeCodingDemo(frame);
+      return;
+    }
+
+    pauseCodingDemo(frame);
+  }
+
+  frame.addEventListener("click", toggleCodingDemoPlayback);
+
+  async function playStepWithGap(stepPlayer) {
+    if (!(await stepPlayer())) {
+      return false;
+    }
+
+    return pause(1000);
   }
 
   async function playStep1() {
@@ -1774,44 +1843,40 @@ function startCodingQuestionDemo() {
         return;
       }
 
-      if (!(await playStep1())) {
+      if (!(await playStepWithGap(playStep1))) {
         return;
       }
 
-      if (!(await playStep2())) {
+      if (!(await playStepWithGap(playStep2))) {
         return;
       }
 
-      if (!(await playStep3())) {
+      if (!(await playStepWithGap(playStep3))) {
         return;
       }
 
-      if (!(await playStep4())) {
+      if (!(await playStepWithGap(playStep4))) {
         return;
       }
 
-      if (!(await playStep5())) {
+      if (!(await playStepWithGap(playStep5))) {
         return;
       }
 
-      if (!(await playStep6())) {
+      if (!(await playStepWithGap(playStep6))) {
         return;
       }
 
-      if (!(await playStep7())) {
+      if (!(await playStepWithGap(playStep7))) {
         return;
       }
 
-      if (!(await playStep8())) {
+      if (!(await playStepWithGap(playStep8))) {
         return;
       }
 
       hideFocus();
       hideMouse();
-
-      if (!(await pause(250))) {
-        return;
-      }
     }
   }
 
@@ -2063,6 +2128,12 @@ function renderCodingQuestionDemo() {
               <div class="guide-step5-prompt-text" data-guide-step5-prompt>1.请选择自己熟悉的编程语言进行作答。</div>
             </div>
             <div class="guide-step5-mouse"></div>
+            <div class="guide-step5-pause-overlay" aria-hidden="true">
+              <div class="guide-step5-pause-icon">
+                <span></span>
+                <span></span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
