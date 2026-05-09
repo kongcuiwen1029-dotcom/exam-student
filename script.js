@@ -495,13 +495,13 @@ function createGuideSteps(exam) {
       ],
       detection: {
         type: "camera",
-        idleDetail: "尚未开始检测。点击下方按钮后，浏览器会尝试申请摄像头权限并展示实时预览。",
+        idleDetail: "进入当前步骤后，浏览器会自动尝试申请摄像头权限并展示实时预览。",
       },
     },
     {
       id: "mobile-camera",
       navName: "手机端摄像头",
-      navSummary: "扫码连接第二机位并确认摆放",
+      navSummary: "扫码连接手机并确认摆放位置",
       title: "手机端摄像头准备",
       description: `请使用手机扫码连接，并将手机固定在可以拍到侧后方桌面的角度。`,
       demoType: "mobile-camera",
@@ -523,9 +523,9 @@ function createGuideSteps(exam) {
     {
       id: "photo-upload",
       navName: "拍照上传答案",
-      navSummary: "查看扫码拍照、校准与反馈流程",
+      navSummary: "查看扫码拍照、上传与反馈流程",
       title: "拍照上传答案说明",
-      description: "请使用手机扫码进入拍照页，确保彩色校准二维码完整入镜，并根据上传反馈及时重拍或确认。",
+      description: "请使用手机扫码进入拍照页，确保二维码完整入镜，并根据上传反馈及时重拍或确认。",
       demoType: "photo-upload",
       keyPoints: [
         "拍照前请保证答题区域平整、无遮挡，二维码与答案区域都需完整出现在画面中。",
@@ -561,9 +561,9 @@ function createGuideSteps(exam) {
     },
     {
       id: "coding-question",
-      navName: "编程题操作",
+      navName: "算法题操作",
       navSummary: "熟悉代码编辑、运行与提交流程",
-      title: "编程题操作说明",
+      title: "算法题操作说明",
       description: "正式考试时，你可以在编辑区编写代码、运行示例、查看输出，再选择提交。",
       demoType: "coding-question",
       keyPoints: [
@@ -2076,10 +2076,10 @@ function renderGuideDemo(step, detection) {
       detection.status === "success"
         ? { text: "监控中", tone: "is-success" }
         : detection.status === "running"
-          ? { text: "检测中", tone: "is-running" }
+          ? { text: "申请中", tone: "is-running" }
           : detection.status === "error"
             ? { text: "异常", tone: "is-error" }
-            : { text: "等待中", tone: "is-idle" };
+            : { text: "待申请", tone: "is-idle" };
 
     const previewContent =
       detection.status === "success" && guideState.cameraStream
@@ -2087,7 +2087,11 @@ function renderGuideDemo(step, detection) {
         : `
             <div class="guide-step1-preview-empty">
               <p class="guide-step1-preview-empty-title">检测会尝试读取浏览器摄像头权限</p>
-              <p class="guide-step1-preview-empty-detail">请允许浏览器授权！</p>
+              <p class="guide-step1-preview-empty-detail">${
+                detection.status === "running"
+                  ? "正在请求浏览器授权，请留意左上角权限提示。"
+                  : "进入当前步骤后，浏览器会自动发起摄像头权限申请。"
+              }</p>
             </div>
           `;
 
@@ -2593,7 +2597,11 @@ function renderGuideDetection(step, detection) {
           <p>检测会尝试读取浏览器摄像头权限。授权成功后展示实时预览；授权失败时，会显示失败提示与处理建议。</p>
         </div>
         <div class="guide-detect-actions">
-          <button class="button button-primary" type="button" data-guide-action="run-detection">开始检测</button>
+          ${
+            detection.status === "error"
+              ? `<button class="button button-primary" type="button" data-guide-action="run-detection">重新检测</button>`
+              : ""
+          }
           ${
             detection.status === "success"
               ? `<button class="guide-ghost-button" type="button" data-guide-action="stop-camera">停止预览</button>`
