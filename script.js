@@ -1676,7 +1676,7 @@ function startCodingQuestionDemo() {
       return false;
     }
 
-    return pause(1000);
+    return pause(300);
   }
 
   async function playStep1() {
