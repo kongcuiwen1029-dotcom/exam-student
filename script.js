@@ -185,6 +185,9 @@ const guideStep3Assets = {
   phoneDemo: `${guideAssetBase}/step3-answer/phone-demo.png`,
   infoIcon: `${guideAssetBase}/step3-answer/info-icon.svg`,
   correctIcon: `${guideAssetBase}/step3-answer/correct.svg`,
+  refreshVector: `${guideAssetBase}/step3-answer/refresh-vector.svg`,
+  refreshPhone: `${guideAssetBase}/step3-answer/refresh-phone.svg`,
+  refreshQr: `${guideAssetBase}/step3-answer/refresh-qr.png`,
 };
 
 const mobileCameraBaseStorageKey = "codexMobileCameraBaseUrl";
@@ -2369,12 +2372,18 @@ function renderGuideDemo(step, detection) {
   if (step.demoType === "photo-upload") {
     const photoUploadPayload = getPhotoUploadGuidePayload(guideState.examId);
     const shouldShowUploadSuccess = detection.status === "success";
+    const shouldShowUploadRefresh = detection.status === "running";
     const uploadState =
       shouldShowUploadSuccess
         ? { text: "上传成功", tone: "is-success" }
-        : detection.status === "running"
+        : shouldShowUploadRefresh
           ? { text: "跳转中", tone: "is-running" }
           : { text: "待扫码", tone: "is-idle" };
+    const previewHintText = shouldShowUploadSuccess
+      ? "上传成功。当前仅展示演示型反馈，不影响正式考试进入。"
+      : shouldShowUploadRefresh
+        ? "用手机拍摄本图并上传"
+        : "请使用手机拍摄屏幕上的校准图后上传";
     const pointItems = [
       "电脑端先展示扫码二维码，手机扫码后进入拍照上传页",
       "网页会展示彩色校准二维码，使用手机拍摄屏幕中的二维码后上传",
@@ -2401,8 +2410,42 @@ function renderGuideDemo(step, detection) {
                         <strong>上传成功</strong>
                       </div>
                     `
+                  : shouldShowUploadRefresh
+                    ? `
+                        <button
+                          class="guide-step3-refresh-stage"
+                          type="button"
+                          data-guide-action="complete-upload-preview"
+                          aria-label="模拟上传成功"
+                        >
+                          <span class="guide-step3-refresh-orbit" aria-hidden="true"></span>
+                          <span class="guide-step3-refresh-copy">
+                            请使用手机<span>拍摄本图并上传</span>
+                          </span>
+                          <span class="guide-step3-refresh-camera" aria-hidden="true">
+                            <img alt="" src="${guideStep3Assets.refreshVector}">
+                          </span>
+                          <span class="guide-step3-refresh-phone" aria-hidden="true">
+                            <img alt="" src="${guideStep3Assets.refreshPhone}">
+                          </span>
+                          <span class="guide-step3-refresh-star guide-step3-refresh-star-top-left" aria-hidden="true"></span>
+                          <span class="guide-step3-refresh-star guide-step3-refresh-star-left" aria-hidden="true"></span>
+                          <span class="guide-step3-refresh-star guide-step3-refresh-star-top-right" aria-hidden="true"></span>
+                          <span class="guide-step3-refresh-star guide-step3-refresh-star-right" aria-hidden="true"></span>
+                          <span class="guide-step3-refresh-star guide-step3-refresh-star-bottom-right" aria-hidden="true"></span>
+                          <span class="guide-step3-refresh-qr-wrap" aria-hidden="true">
+                            <img alt="拍照上传二维码" src="${guideStep3Assets.refreshQr}">
+                          </span>
+                        </button>
+                      `
                   : `
-                      <div class="guide-step3-preview-upload">
+                      <div
+                        class="guide-step3-preview-upload"
+                        data-guide-action="start-upload-preview"
+                        role="button"
+                        tabindex="0"
+                        aria-label="模拟扫码进入拍照上传页"
+                      >
                         <iframe
                           class="guide-step3-live-probe"
                           id="guide-step3-live-probe"
@@ -2420,14 +2463,9 @@ function renderGuideDemo(step, detection) {
                         <div class="guide-step2-preview-banner">手机扫码进入拍照上传页</div>
                         <img class="guide-step2-arrow guide-step2-arrow-left" alt="" src="${guideStep2Assets.arrowLeft}">
                         <div class="guide-step2-qr-shell">
-                          <button
-                            class="guide-step2-qr-link guide-step3-qr-trigger"
-                            type="button"
-                            data-guide-action="start-upload-preview"
-                            aria-label="模拟扫码进入拍照上传页"
-                          >
+                          <div class="guide-step2-qr-link guide-step3-qr-trigger">
                             <img alt="扫码进入拍照上传页" src="${photoUploadPayload.qrImageUrl}">
-                          </button>
+                          </div>
                         </div>
                         <img class="guide-step2-arrow guide-step2-arrow-right" alt="" src="${guideStep2Assets.arrowLeft}">
                       </div>
@@ -2436,7 +2474,7 @@ function renderGuideDemo(step, detection) {
             </div>
             <div class="guide-step3-preview-hint">
               <img alt="" src="${guideStep3Assets.infoIcon}">
-              <span class="guide-step3-preview-hint-text">请使用手机拍摄屏幕上的校准图后上传</span>
+              <span class="guide-step3-preview-hint-text">${previewHintText}</span>
             </div>
           </article>
           <div class="guide-step3-side">
@@ -3123,6 +3161,18 @@ function handleGuideAction(action) {
   if (action === "start-upload-preview") {
     if (step.detection?.type === "upload") {
       setDetectionState(guideState.examId, step.id, {
+        status: "running",
+        detail: "手机扫码后刷新，进入拍照上传页后可继续完成上传演示。",
+      });
+      refreshGuideStepAfterDetection();
+    }
+
+    return;
+  }
+
+  if (action === "complete-upload-preview") {
+    if (step.detection?.type === "upload") {
+      setDetectionState(guideState.examId, step.id, {
         status: "success",
         detail: getPhotoUploadSuccessDetail(),
       });
@@ -3256,6 +3306,21 @@ if (guideStepContent) {
       return;
     }
 
+    handleGuideAction(actionButton.dataset.guideAction || "");
+  });
+
+  guideStepContent.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") {
+      return;
+    }
+
+    const actionButton = event.target.closest("[data-guide-action]");
+
+    if (!actionButton) {
+      return;
+    }
+
+    event.preventDefault();
     handleGuideAction(actionButton.dataset.guideAction || "");
   });
 }

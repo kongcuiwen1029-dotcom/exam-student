@@ -3320,6 +3320,143 @@ body.is-modal-open {
   position: relative;
   width: 100%;
   height: 100%;
+  cursor: pointer;
+}
+
+.guide-step3-refresh-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(252, 253, 255, 0.98)),
+    #fff;
+  cursor: pointer;
+}
+
+.guide-step3-refresh-orbit {
+  position: absolute;
+  left: 50%;
+  top: -6px;
+  width: 330px;
+  height: 330px;
+  border: 1.5px dashed rgba(89, 214, 255, 0.72);
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+.guide-step3-refresh-copy {
+  position: absolute;
+  top: 31px;
+  left: 50%;
+  z-index: 2;
+  color: rgba(0, 0, 0, 0.85);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.guide-step3-refresh-copy span {
+  margin-left: 2px;
+  background: linear-gradient(90deg, #5478ee 0%, #00ccc7 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.guide-step3-refresh-qr-wrap {
+  position: absolute;
+  top: 68px;
+  left: 50%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 220px;
+  height: 220px;
+  transform: translateX(-50%);
+}
+
+.guide-step3-refresh-qr-wrap img {
+  display: block;
+  width: 184px;
+  height: 184px;
+  object-fit: cover;
+}
+
+.guide-step3-refresh-camera,
+.guide-step3-refresh-phone {
+  position: absolute;
+  z-index: 2;
+}
+
+.guide-step3-refresh-camera {
+  top: 138px;
+  left: 28px;
+  width: 37px;
+  height: 34px;
+  transform: rotate(-2deg);
+}
+
+.guide-step3-refresh-phone {
+  right: 30px;
+  bottom: 68px;
+  width: 42px;
+  height: 60px;
+  transform: rotate(0deg);
+}
+
+.guide-step3-refresh-camera img,
+.guide-step3-refresh-phone img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.guide-step3-refresh-star {
+  position: absolute;
+  z-index: 2;
+  width: 11px;
+  height: 11px;
+  background: linear-gradient(180deg, #4d85fb 0%, #319eff 100%);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+}
+
+.guide-step3-refresh-star-top-left {
+  top: 81px;
+  left: 56px;
+}
+
+.guide-step3-refresh-star-left {
+  left: 64px;
+  bottom: 84px;
+  width: 13px;
+  height: 13px;
+}
+
+.guide-step3-refresh-star-top-right {
+  top: 96px;
+  right: 49px;
+  width: 13px;
+  height: 13px;
+}
+
+.guide-step3-refresh-star-right {
+  top: 163px;
+  right: 14px;
+  width: 10px;
+  height: 10px;
+}
+
+.guide-step3-refresh-star-bottom-right {
+  right: 53px;
+  bottom: 56px;
+  width: 16px;
+  height: 16px;
 }
 
 .guide-step3-preview-upload .guide-step2-qr-shell {
