@@ -193,6 +193,7 @@ const guideStep3Assets = {
 const mobileCameraBaseStorageKey = "codexMobileCameraBaseUrl";
 const mobileCameraFallbackBaseUrl = "https://codex-five-zeta.vercel.app/";
 const mobileRelayBaseUrl = "https://vdo.ninja/";
+const guideBackendConfig = window.__GUIDE_BACKEND__ || {};
 const mobileRelayViewerCss = `
 html, body {
   margin: 0 !important;
@@ -458,13 +459,46 @@ function resolvePhotoUploadGuideUrl(examId = "") {
 
 function getPhotoUploadGuidePayload(examId = "") {
   const mobileGuidePayload = getMobileCameraGuidePayload(examId);
+  const refreshQrImageUrl = resolvePhotoUploadRefreshQrImageUrl(examId);
 
   return {
     pageUrl: mobileGuidePayload.pageUrl,
     qrImageUrl: mobileGuidePayload.qrImageUrl,
     viewerUrl: mobileGuidePayload.viewerUrl,
     probeUrl: mobileGuidePayload.probeUrl,
+    refreshQrImageUrl,
   };
+}
+
+function resolvePhotoUploadRefreshQrImageUrl(examId = "") {
+  const params = new URLSearchParams(window.location.search);
+  const manualQrUrl = params.get("photoUploadRefreshQr");
+
+  if (manualQrUrl) {
+    return manualQrUrl;
+  }
+
+  const endpoint =
+    guideBackendConfig.photoUploadRefreshQrEndpoint ||
+    guideBackendConfig.dynamicPhotoUploadQrEndpoint ||
+    "";
+
+  if (!endpoint) {
+    return guideStep3Assets.refreshQr;
+  }
+
+  try {
+    const targetUrl = new URL(endpoint, window.location.origin);
+
+    if (examId) {
+      targetUrl.searchParams.set("examId", examId);
+    }
+
+    targetUrl.searchParams.set("scene", "photo-upload-refresh");
+    return targetUrl.toString();
+  } catch (error) {
+    return guideStep3Assets.refreshQr;
+  }
 }
 
 function getGuideSubtitle(exam) {
@@ -2434,7 +2468,7 @@ function renderGuideDemo(step, detection) {
                           <span class="guide-step3-refresh-star guide-step3-refresh-star-right" aria-hidden="true"></span>
                           <span class="guide-step3-refresh-star guide-step3-refresh-star-bottom-right" aria-hidden="true"></span>
                           <span class="guide-step3-refresh-qr-wrap" aria-hidden="true">
-                            <img alt="拍照上传二维码" src="${guideStep3Assets.refreshQr}">
+                            <img alt="拍照上传二维码" src="${photoUploadPayload.refreshQrImageUrl}">
                           </span>
                         </button>
                       `

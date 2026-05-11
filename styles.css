@@ -3400,6 +3400,7 @@ body.is-modal-open {
   width: 37px;
   height: 34px;
   transform: rotate(-2deg);
+  animation: guideStep3FloatCamera 3.8s ease-in-out infinite;
 }
 
 .guide-step3-refresh-phone {
@@ -3408,6 +3409,7 @@ body.is-modal-open {
   width: 42px;
   height: 60px;
   transform: rotate(0deg);
+  animation: guideStep3FloatPhone 4.4s ease-in-out infinite;
 }
 
 .guide-step3-refresh-camera img,
@@ -3424,11 +3426,13 @@ body.is-modal-open {
   height: 11px;
   background: linear-gradient(180deg, #4d85fb 0%, #319eff 100%);
   clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  animation: guideStep3FloatStar 3.2s ease-in-out infinite;
 }
 
 .guide-step3-refresh-star-top-left {
   top: 81px;
   left: 56px;
+  animation-delay: -0.4s;
 }
 
 .guide-step3-refresh-star-left {
@@ -3436,6 +3440,7 @@ body.is-modal-open {
   bottom: 84px;
   width: 13px;
   height: 13px;
+  animation-delay: -1.1s;
 }
 
 .guide-step3-refresh-star-top-right {
@@ -3443,6 +3448,7 @@ body.is-modal-open {
   right: 49px;
   width: 13px;
   height: 13px;
+  animation-delay: -0.9s;
 }
 
 .guide-step3-refresh-star-right {
@@ -3450,6 +3456,7 @@ body.is-modal-open {
   right: 14px;
   width: 10px;
   height: 10px;
+  animation-delay: -1.6s;
 }
 
 .guide-step3-refresh-star-bottom-right {
@@ -3457,6 +3464,50 @@ body.is-modal-open {
   bottom: 56px;
   width: 16px;
   height: 16px;
+  animation-delay: -2.1s;
+}
+
+@keyframes guideStep3FloatCamera {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-2deg);
+  }
+
+  50% {
+    transform: translate3d(0, -7px, 0) rotate(3deg);
+  }
+}
+
+@keyframes guideStep3FloatPhone {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+
+  50% {
+    transform: translate3d(0, -9px, 0) rotate(5deg);
+  }
+}
+
+@keyframes guideStep3FloatStar {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.92;
+  }
+
+  50% {
+    transform: translate3d(0, -6px, 0) scale(1.08);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guide-step3-refresh-camera,
+  .guide-step3-refresh-phone,
+  .guide-step3-refresh-star {
+    animation: none;
+  }
 }
 
 .guide-step3-preview-upload .guide-step2-qr-shell {
